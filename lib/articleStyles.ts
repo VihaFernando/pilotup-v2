@@ -45,20 +45,40 @@ export const ARTICLE_BODY_STYLES = `
 
 .article-body ul,
 .article-body ol {
-  margin-bottom: 2.5rem;
-  padding-left: 1.5rem;
+  margin: 0 0 2.25rem 0;
+  padding-left: 1.9rem;
   color: #292929;
   font-weight: 400;
 }
 
+.article-body ul {
+  list-style-type: disc;
+}
+
+.article-body ol {
+  list-style-type: decimal;
+}
+
 .article-body li {
-  margin-bottom: 0.85em;
-  padding-left: 0.5rem;
-  position: relative;
+  margin-bottom: 0.8rem;
+  padding-left: 0.3rem;
+  line-height: 1.9;
+}
+
+.article-body li > ul,
+.article-body li > ol {
+  margin-top: 0.8rem;
+  margin-bottom: 0.6rem;
 }
 
 .article-body ul li::marker {
   color: #E21339;
+  font-size: 1.05em;
+}
+
+.article-body ol li::marker {
+  color: #111827;
+  font-weight: 700;
 }
 
 .article-body blockquote {

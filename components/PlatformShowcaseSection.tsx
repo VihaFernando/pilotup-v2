@@ -87,7 +87,7 @@ export function PlatformShowcaseSection() {
                         Why It Is Different
                     </p>
                     <h2 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
-                        PilotUP is not "JUST ANOTHER AI TOOL"
+                        Not another AI tool. More like hiring a team that never sleeps.
                     </h2>
                     <p className="mx-auto mt-6 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg">
                         It is a platform that helps you create AI employees that work 24/7 and handle different tasks.

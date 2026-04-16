@@ -6,7 +6,7 @@ import { Calendar, ArrowLeft, Share2, Clock, Check, Copy } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import parse, { HTMLReactParserOptions, Element } from "html-react-parser";
 import sanitizeHtml from "sanitize-html";
-import BlogPreBlockGate from "@/components/BlogPreBlockGate";
+import BlogPreBlock from "@/components/BlogPreBlock";
 import { Navigation } from "@/components/Navigation";
 import { getBlogSource } from "@/lib/blogConfig";
 import { ARTICLE_BODY_STYLES, MERRIWEATHER_FONT_IMPORT } from "@/lib/articleStyles";
@@ -17,6 +17,84 @@ import { fetchSupabaseBlogPostBySlug } from "@/lib/supabaseBlog";
 type Props = {
     blog: BlogViewModel | null;
 };
+
+const FENCED_CODE_BLOCK_REGEX = /```(?:[\w-]+)?\n([\s\S]*?)```/g;
+
+function escapeHtml(value: string): string {
+    return value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function decodeHtmlEntities(value: string): string {
+    return value
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, "\"")
+        .replace(/&#39;/g, "'");
+}
+
+function looksLikeCodeLine(line: string): boolean {
+    const value = line.trim();
+    if (!value) return false;
+    if (/^<\/?[a-zA-Z]/.test(value)) return true;
+    if (/^(const|let|var|function|async|await|return|if|else|for|while|try|catch|import|export|class)\b/.test(value)) return true;
+    if (/=>/.test(value) || /[{}();]/.test(value)) return true;
+    if (/^[a-zA-Z_$][\w$]*\./.test(value)) return true;
+    return false;
+}
+
+function normalizeCodeContent(rawHtml: string): string {
+    const withFencedBlocks = rawHtml.replace(FENCED_CODE_BLOCK_REGEX, (_match, code: string) => {
+        return `<pre><code>${escapeHtml(code.trimEnd())}</code></pre>`;
+    });
+
+    const paragraphRegex = /<p>([\s\S]*?)<\/p>/gi;
+    let result = "";
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    let runOriginalParagraphs: string[] = [];
+    let runCodeLines: string[] = [];
+
+    const flushRun = () => {
+        if (!runOriginalParagraphs.length) return;
+
+        if (runCodeLines.length >= 2) {
+            result += `<pre><code>${escapeHtml(runCodeLines.join("\n"))}</code></pre>`;
+        } else {
+            result += runOriginalParagraphs.join("");
+        }
+
+        runOriginalParagraphs = [];
+        runCodeLines = [];
+    };
+
+    while ((match = paragraphRegex.exec(withFencedBlocks)) !== null) {
+        const fullMatch = match[0];
+        const innerHtml = match[1] ?? "";
+        const start = match.index;
+
+        result += withFencedBlocks.slice(lastIndex, start);
+        lastIndex = start + fullMatch.length;
+
+        const plainText = decodeHtmlEntities(innerHtml.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").trim());
+        if (looksLikeCodeLine(plainText)) {
+            runOriginalParagraphs.push(fullMatch);
+            runCodeLines.push(plainText);
+        } else {
+            flushRun();
+            result += fullMatch;
+        }
+    }
+
+    result += withFencedBlocks.slice(lastIndex);
+    flushRun();
+    return result;
+}
 
 declare global {
     interface Window {
@@ -82,7 +160,7 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
             const key = codeText.substring(0, 20);
 
             return (
-                <BlogPreBlockGate
+                <BlogPreBlock
                     codeText={codeText}
                     copyKey={key}
                     copiedStates={copiedStates}
@@ -166,7 +244,7 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(sanitizeHtml(safeContent), parseOptions)}
+                            {parse(sanitizeHtml(normalizeCodeContent(safeContent)), parseOptions)}
                         </motion.article>
                     </div>
 
