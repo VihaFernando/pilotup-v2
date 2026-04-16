@@ -25,12 +25,27 @@ declare global {
     }
 }
 
-export default function BlogDetailPage({ blog }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsType<typeof getServerSideProps> & { debug?: string }) {
     if (!blog) {
-        return null;
+        return (
+            <div style={{ padding: 40, textAlign: "center" }}>
+                <h1 style={{ color: "#E21339" }}>Blog post not found</h1>
+                <p>The blog post could not be loaded. This may be due to a missing or unpublished post, a slug mismatch, or a server error.</p>
+                {debug && (
+                    <pre style={{ marginTop: 24, color: "#333", background: "#f5f5f5", padding: 16, borderRadius: 8, maxWidth: 600, margin: "24px auto 0" }}>{debug}</pre>
+                )}
+                <p style={{ marginTop: 32 }}><a href="/blog" style={{ color: "#E21339", textDecoration: "underline" }}>Back to all posts</a></p>
+            </div>
+        );
     }
 
+    // Defensive: ensure all fields are strings
     const safeContent = typeof blog.content === "string" ? blog.content : "";
+    blog.title = typeof blog.title === "string" ? blog.title : "";
+    blog.summary = typeof blog.summary === "string" ? blog.summary : "";
+    blog.slug = typeof blog.slug === "string" ? blog.slug : "";
+    blog.coverUrl = typeof blog.coverUrl === "string" ? blog.coverUrl : "";
+    blog.publishedAt = blog.publishedAt || "";
 
     const [linkCopied, setLinkCopied] = useState(false);
     const [bookmarkCopied, setBookmarkCopied] = useState(false);
@@ -260,19 +275,19 @@ export default function BlogDetailPage({ blog }: InferGetServerSidePropsType<typ
     );
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({ params, res }) => {
+export const getServerSideProps: GetServerSideProps<Props & { debug?: string }> = async ({ params, res }) => {
     res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=600");
 
     const slug = typeof params?.slug === "string" ? params.slug : "";
     if (!slug) {
-        return { notFound: true };
+        return { props: { blog: null, debug: `Missing slug param. Params: ${JSON.stringify(params)}` } };
     }
 
     try {
         if (getBlogSource() === "supabase") {
             const post = await fetchSupabaseBlogPostBySlug(slug);
             if (!post) {
-                return { notFound: true };
+                return { props: { blog: null, debug: `Supabase: No post found for slug '${slug}'` } };
             }
 
             return {
@@ -284,24 +299,27 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params, re
                         content: post.content || "",
                         summary: post.summary || "",
                         coverUrl: post.cover_url || "",
-                        publishedAt: post.updated_at || post.created_at,
+                        publishedAt: post.updated_at || post.created_at || "",
                     },
+                    debug: `Supabase: Loaded post for slug '${slug}'`,
                 },
             };
         }
 
         const post = await fetchBlogPostBySlug(slug);
         if (!post) {
-            return { notFound: true };
+            return { props: { blog: null, debug: `Strapi: No post found for slug '${slug}'` } };
         }
 
         return {
             props: {
                 blog: mapBlogPost(post),
+                debug: `Strapi: Loaded post for slug '${slug}'`,
             },
         };
     } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error);
         console.error(`Failed to fetch blog post for /blog/${slug}:`, error);
-        return { notFound: true };
+        return { props: { blog: null, debug: `Error: ${errMsg}` } };
     }
 };
