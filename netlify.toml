@@ -1,0 +1,16 @@
+# Netlify Configuration for Next.js
+
+[build]
+  command = "npm install && npm run build"
+  publish = ".next"
+
+
+# Next.js plugin to handle SSR, API routes, etc.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Client-side routing fallback (if plugin is removed or you're serving static output only)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
