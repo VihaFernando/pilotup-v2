@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Calendar, ArrowLeft, Share2, Clock, Check, Copy } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 import parse from "html-react-parser";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -270,7 +270,7 @@ export function SupabaseBlogDetail() {
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(DOMPurify.sanitize(blog.content), parseOptions as any)}
+                            {parse(sanitizeHtml(blog.content), parseOptions as any)}
                         </motion.article>
                     </div>
 
