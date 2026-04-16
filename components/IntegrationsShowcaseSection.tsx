@@ -1,14 +1,20 @@
 import Link from "next/link";
 
 const INTEGRATION_LOGOS = [
-    { name: "Slack", src: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" },
-    { name: "Gmail", src: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" },
-    { name: "GitHub", src: "https://img.icons8.com/?size=100&id=12599&format=png&color=000000" },
-    { name: "ClickUp", src: "https://img.icons8.com/?size=100&id=znqq179L1K9g&format=png&color=000000" },
-    { name: "Google Meet", src: "https://img.icons8.com/?size=100&id=pE97I4t7Il9M&format=png&color=000000" },
-    { name: "VS Code", src: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Visual_Studio_Code_1.35_icon.svg" },
+    { name: "WhatsApp", src: "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" },
+    { name: "ClickUP", src: "https://e7.pngegg.com/pngimages/221/620/png-clipart-clickup-logo-thumbnail-tech-companies-thumbnail.png" },
+    { name: "Jira", src: "https://cdn.worldvectorlogo.com/logos/jira-3.svg" },
     { name: "Notion", src: "https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" },
-    { name: "Figma", src: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
+    { name: "Gmail", src: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" },
+    { name: "google meet", src: "https://cdn.worldvectorlogo.com/logos/google-meet-icon-2020-.svg" },
+    { name: "vs code", src: "https://cdn.worldvectorlogo.com/logos/visual-studio-code-1.svg" },
+    { name: "slack", src: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg" },
+    { name: "discord", src: "https://cdn.worldvectorlogo.com/logos/discord-6.svg" },
+    { name: "telegram", src: "https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" },
+    { name: "figma", src: "https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" },
+    { name: "hubspot", src: "https://cdn.worldvectorlogo.com/logos/hubspot-1.svg" },
+    { name: "buffer", src: "https://cdn-icons-png.flaticon.com/512/4817/4817546.png" },
+    { name: "loops", src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXLPZ1y49oF28nkE3hqb2Fy1z-vZG48tlTUg&s" },
 ];
 
 type LogoItem = (typeof INTEGRATION_LOGOS)[number];
