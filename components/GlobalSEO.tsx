@@ -3,37 +3,15 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { Page } from "@/types";
 import { generatePageMeta } from "@/util/metadata";
-
-function normalizePath(path: string): string {
-  return path.split("?")[0].split("#")[0] || "/";
-}
-
-function resolveSlug(path: string): string | null {
-  const cleanPath = normalizePath(path);
-  if (shouldSkipSeoLookup(cleanPath)) return null;
-  if (cleanPath === "/") return "home";
-
-  const slug = cleanPath.replace(/^\/+|\/+$/g, "");
-  if (!slug || slug.startsWith("api/pages/")) {
-    return null;
-  }
-
-  return slug;
-}
-
-function shouldSkipSeoLookup(path: string): boolean {
-  const cleanPath = normalizePath(path);
-  return (
-    cleanPath.startsWith("/api/") ||
-    cleanPath.startsWith("/_next/") ||
-    cleanPath === "/blog" ||
-    cleanPath.startsWith("/blog/")
-  );
-}
+import { resolveSeoSlug, shouldSkipSeoLookup } from "@/util/seoRoute";
 
 export function GlobalSEO({ initialPage }: { initialPage?: Page }) {
   const router = useRouter();
   const [page, setPage] = useState<Page | undefined>(initialPage);
+
+  useEffect(() => {
+    setPage(initialPage);
+  }, [initialPage]);
 
   useEffect(() => {
     if (shouldSkipSeoLookup(router.asPath)) {
@@ -41,11 +19,17 @@ export function GlobalSEO({ initialPage }: { initialPage?: Page }) {
       return;
     }
 
-    const slug = resolveSlug(router.asPath);
+    const slug = resolveSeoSlug(router.asPath);
     if (!slug) {
       setPage(undefined);
       return;
     }
+
+    // SSR already loaded this slug via `_app` → skip duplicate client fetch (no Network row, no Strict Mode abort).
+    if (initialPage?.attributes?.slug === slug) {
+      return;
+    }
+
     const controller = new AbortController();
 
     const fetchSEO = async () => {
@@ -64,7 +48,7 @@ export function GlobalSEO({ initialPage }: { initialPage?: Page }) {
 
     fetchSEO();
     return () => controller.abort();
-  }, [router.asPath]);
+  }, [router.asPath, initialPage]);
 
   const meta = useMemo(() => generatePageMeta(page), [page]);
   const webPageSchema = useMemo(

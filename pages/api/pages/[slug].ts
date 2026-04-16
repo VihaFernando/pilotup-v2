@@ -15,8 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json(page);
   } catch (error) {
-    // Strapi can be unavailable in local/dev; return a neutral payload so the app can
-    // gracefully fall back to static metadata without noisy 500s.
-    return res.status(200).json(null);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error(`[seo] Failed to fetch page for slug "${String(req.query.slug)}":`, error);
+    return res.status(500).json({ error: "Failed to fetch page SEO", message });
   }
 }

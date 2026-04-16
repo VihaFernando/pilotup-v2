@@ -52,13 +52,23 @@ async function strapiFetch<T>(path: string): Promise<T> {
 
 function normalizePage(raw: any): Page {
   if (raw?.attributes) return raw as Page;
+
+  const ogImageUrl = raw?.ogImage?.url || raw?.ogImage?.data?.attributes?.url;
   return {
     id: raw.id,
     attributes: {
       title: raw.title,
       slug: raw.slug,
       description: raw.description || "",
-      ogImage: raw.ogImage,
+      ogImage: ogImageUrl
+        ? {
+          data: {
+            attributes: {
+              url: ogImageUrl,
+            },
+          },
+        }
+        : undefined,
       ogTitle: raw.ogTitle ?? null,
       ogDescription: raw.ogDescription ?? null,
       canonicalUrl: raw.canonicalUrl ?? null,
@@ -87,13 +97,13 @@ function normalizeBlogPost(raw: any): BlogPost {
 export async function fetchPageBySlug(slug: string): Promise<Page | null> {
   const encodedSlug = encodeURIComponent(slug);
   const data = await strapiFetch<APIResponse<Page>>(
-    `/api/pages?filters[slug][$eq]=${encodedSlug}&populate=ogImage`
+    `/api/pages?filters[slug][$eq]=${encodedSlug}&populate=*`
   );
   return data.data?.[0] ? normalizePage(data.data[0]) : null;
 }
 
 export async function fetchAllPages(): Promise<Page[]> {
-  const data = await strapiFetch<APIResponse<Page>>("/api/pages?populate=ogImage&pagination[pageSize]=100");
+  const data = await strapiFetch<APIResponse<Page>>("/api/pages?populate=*&pagination[pageSize]=100");
   return (data.data ?? []).map(normalizePage);
 }
 
