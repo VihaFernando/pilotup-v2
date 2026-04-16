@@ -220,7 +220,7 @@ export function EmployeesSection() {
           className={[
             "hidden lg:flex lg:flex-col lg:w-[min(100%,300px)] lg:flex-shrink-0 lg:border-b-0 lg:border-brand-border/80 h-fit",
             "lg:transform-gpu lg:transition-all lg:duration-700 lg:ease-out",
-            desktopReveal ? "lg:opacity-100 lg:translate-y-0" : "lg:translate-y-8 lg:opacity-0",
+            desktopReveal ? "lg:opacity-100 lg:translate-y-0" : "lg:opacity-40",
           ].join(" ")}
           role="tablist"
           aria-label="Employee types"
@@ -275,7 +275,7 @@ export function EmployeesSection() {
           className={[
             "relative z-10 mt-2 h-full flex-1 flex items-end justify-center overflow-hidden py-4 sm:py-6 lg:ml-8 lg:mt-0 lg:overflow-visible xl:ml-12",
             "lg:transform-gpu lg:transition-all lg:duration-700 lg:delay-100 lg:ease-out",
-            desktopReveal ? "lg:opacity-100 lg:translate-y-0" : "lg:translate-y-10 lg:opacity-0",
+            desktopReveal ? "lg:opacity-100 lg:translate-y-0" : "lg:translate-y-10 lg:opacity-40",
           ].join(" ")}
           style={{
             backgroundImage: "radial-gradient(rgb(var(--color-border) / 0.35) 1px, transparent 1px)",
@@ -285,24 +285,34 @@ export function EmployeesSection() {
         >
 
           <div className="relative z-10 flex items-center justify-center w-full px-2 sm:px-4 lg:px-0 translate-y-6 sm:translate-y-8 md:translate-y-12">
-            <div className="relative h-[280px] sm:h-[360px] md:h-[380px] w-full max-w-[320px] sm:max-w-[420px] md:max-w-[480px]">
-              <video
-                key={selectedRole?.id}
-                src={selectedRole?.video}
-                poster={selectedRole?.poster}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 h-full w-full object-contain object-center pointer-events-none"
-              />
+            <AnimatePresence mode="wait">
+              {selectedRole && (
+                <motion.div
+                  key={selectedRole.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="relative h-[280px] sm:h-[360px] md:h-[380px] w-full max-w-[320px] sm:max-w-[420px] md:max-w-[480px]"
+                >
+                  <video
+                    src={selectedRole.video}
+                    poster={selectedRole.poster}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="absolute inset-0 h-full w-full object-contain object-center pointer-events-none"
+                  />
 
-              <img
-                src={selectedRole?.image}
-                className="absolute inset-0 h-full w-full scale-110 sm:scale-135 md:scale-[1.55] -translate-y-24 sm:-translate-y-24 md:-translate-y-36 object-contain object-center pointer-events-none"
-              />
-            </div>
+                  <img
+                    src={selectedRole.image}
+                    className="absolute inset-0 h-full w-full scale-110 sm:scale-135 md:scale-[1.55] -translate-y-24 sm:-translate-y-24 md:-translate-y-36 object-contain object-center pointer-events-none"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div

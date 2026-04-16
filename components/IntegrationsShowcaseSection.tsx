@@ -50,8 +50,9 @@ function IntegrationsRow({ logos, duration, reverse = false }: { logos: LogoItem
 }
 
 export function IntegrationsShowcaseSection() {
-    const firstLine = [...INTEGRATION_LOGOS, ...INTEGRATION_LOGOS, ...INTEGRATION_LOGOS];
-    const secondLine = [...INTEGRATION_LOGOS.slice(3), ...INTEGRATION_LOGOS.slice(0, 3), ...INTEGRATION_LOGOS, ...INTEGRATION_LOGOS.slice(0, 4)];
+    const duplicated = [...INTEGRATION_LOGOS, ...INTEGRATION_LOGOS, ...INTEGRATION_LOGOS];
+    const firstLine = duplicated.filter((_, index) => index % 2 === 0);
+    const secondLine = duplicated.filter((_, index) => index % 2 === 1);
 
     return (
         <section data-gsap="fade-up" className="relative overflow-hidden bg-brand-surface-alt px-4 pt-14 pb-8 sm:px-6 sm:pt-16 sm:pb-10 md:px-8 md:pt-20 md:pb-12 lg:px-12 xl:px-16">
