@@ -4,7 +4,7 @@ export type SupabaseBlogPost = {
     id: number;
     slug: string;
     title: string;
-    content: string;
+    content: string | null;
     summary?: string | null;
     cover_url?: string | null;
     created_at: string;

@@ -30,6 +30,8 @@ export default function BlogDetailPage({ blog }: InferGetServerSidePropsType<typ
         return null;
     }
 
+    const safeContent = typeof blog.content === "string" ? blog.content : "";
+
     const [linkCopied, setLinkCopied] = useState(false);
     const [bookmarkCopied, setBookmarkCopied] = useState(false);
     const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
@@ -37,8 +39,8 @@ export default function BlogDetailPage({ blog }: InferGetServerSidePropsType<typ
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
-    const readTime = calculateReadTimeFromHtml(blog.content);
-    const metaDescription = blog.summary || extractTextFromHTML(blog.content, 200);
+    const readTime = calculateReadTimeFromHtml(safeContent);
+    const metaDescription = blog.summary || extractTextFromHTML(safeContent, 200);
 
     const parseOptions: HTMLReactParserOptions = {
         replace: (domNode) => {
@@ -200,7 +202,7 @@ export default function BlogDetailPage({ blog }: InferGetServerSidePropsType<typ
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(sanitizeHtml(blog.content), parseOptions)}
+                            {parse(sanitizeHtml(safeContent), parseOptions)}
                         </motion.article>
                     </div>
 
@@ -279,7 +281,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ params, re
                         id: post.id,
                         slug: post.slug,
                         title: post.title,
-                        content: post.content,
+                        content: post.content || "",
                         summary: post.summary || "",
                         coverUrl: post.cover_url || "",
                         publishedAt: post.updated_at || post.created_at,

@@ -192,7 +192,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ res }) => 
                         id: post.id,
                         slug: post.slug,
                         title: post.title,
-                        content: post.content,
+                        content: post.content || "",
                         summary: post.summary || "",
                         coverUrl: post.cover_url || "",
                         publishedAt: post.updated_at || post.created_at,

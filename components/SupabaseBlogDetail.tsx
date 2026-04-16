@@ -229,8 +229,10 @@ export function SupabaseBlogDetail() {
         );
     }
 
-    const readTime = calculateReadTimeFromContent(blog.content);
-    const metaDescription = blog.summary || extractTextFromHTML(blog.content, 200);
+    const safeContent = typeof blog.content === "string" ? blog.content : "";
+
+    const readTime = calculateReadTimeFromContent(safeContent);
+    const metaDescription = blog.summary || extractTextFromHTML(safeContent, 200);
 
     return (
         <div className="bg-[#F9F9FB] min-h-screen selection:bg-[#E21339] selection:text-white pb-32">
@@ -270,7 +272,7 @@ export function SupabaseBlogDetail() {
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(sanitizeHtml(blog.content), parseOptions as any)}
+                            {parse(sanitizeHtml(safeContent), parseOptions as any)}
                         </motion.article>
                     </div>
 
