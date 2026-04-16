@@ -1,0 +1,305 @@
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import Head from "next/head";
+import Link from "next/link";
+import { useState } from "react";
+import { Calendar, ArrowLeft, Share2, Clock, Check, Copy } from "lucide-react";
+import { motion, useScroll, useSpring } from "framer-motion";
+import parse, { HTMLReactParserOptions, Element } from "html-react-parser";
+import DOMPurify from "isomorphic-dompurify";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Navigation } from "@/components/Navigation";
+import { getBlogSource } from "@/lib/blogConfig";
+import { ARTICLE_BODY_STYLES, MERRIWEATHER_FONT_IMPORT } from "@/lib/articleStyles";
+import { fetchBlogPostBySlug } from "@/lib/strapi";
+import { BlogViewModel, calculateReadTimeFromHtml, extractTextFromHTML, formatDate, mapBlogPost } from "@/lib/blog";
+import { fetchSupabaseBlogPostBySlug } from "@/lib/supabaseBlog";
+
+type Props = {
+    blog: BlogViewModel | null;
+};
+
+declare global {
+    interface Window {
+        prerenderReady?: boolean;
+    }
+}
+
+export default function BlogDetailPage({ blog }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+    if (!blog) {
+        return null;
+    }
+
+    const [linkCopied, setLinkCopied] = useState(false);
+    const [bookmarkCopied, setBookmarkCopied] = useState(false);
+    const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
+
+    const { scrollYProgress } = useScroll();
+    const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+
+    const readTime = calculateReadTimeFromHtml(blog.content);
+    const metaDescription = blog.summary || extractTextFromHTML(blog.content, 200);
+
+    const parseOptions: HTMLReactParserOptions = {
+        replace: (domNode) => {
+            if (!(domNode instanceof Element) || domNode.name !== "pre") {
+                return undefined;
+            }
+
+            let codeText = "";
+            const codeElement = domNode.children.find((child) => child instanceof Element && child.name === "code");
+
+            if (codeElement && "children" in codeElement && codeElement.children.length > 0) {
+                const first = codeElement.children[0];
+                if ("data" in first && typeof first.data === "string") {
+                    codeText = first.data;
+                }
+            }
+
+            if (!codeText && domNode.children.length > 0) {
+                const first = domNode.children[0] as { data?: string };
+                codeText = first.data || "";
+            }
+
+            if (!codeText) return null;
+
+            const key = codeText.substring(0, 20);
+            const handleCopyCode = async (text: string) => {
+                await navigator.clipboard.writeText(text);
+                setCopiedStates((prev) => ({ ...prev, [key]: true }));
+                setTimeout(() => setCopiedStates((prev) => ({ ...prev, [key]: false })), 2000);
+            };
+
+            return (
+                <div className="my-10 rounded-xl overflow-hidden bg-[#1e1e1e] shadow-2xl border border-[#333] group max-w-[calc(100vw-2rem)] sm:max-w-full mx-auto font-sans">
+                    <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-[#111]">
+                        <div className="flex gap-2">
+                            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                            <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                void handleCopyCode(codeText);
+                            }}
+                            className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1 font-sans"
+                        >
+                            {copiedStates[key] ? (
+                                <span className="text-green-400 font-medium flex items-center gap-1">
+                                    <Check className="w-3 h-3" /> Copied
+                                </span>
+                            ) : (
+                                <span className="opacity-0 group-hover:opacity-100 transition-opacity">Copy Code</span>
+                            )}
+                        </button>
+                    </div>
+
+                    <div className="overflow-x-auto w-full">
+                        <SyntaxHighlighter
+                            language="javascript"
+                            style={vscDarkPlus}
+                            showLineNumbers
+                            wrapLines={false}
+                            customStyle={{
+                                margin: 0,
+                                padding: "1.5rem",
+                                background: "transparent",
+                                fontSize: "0.9rem",
+                                lineHeight: "1.6",
+                                fontFamily: "'SF Mono', 'JetBrains Mono', 'Fira Code', monospace",
+                                minWidth: "100%",
+                            }}
+                            lineNumberStyle={{
+                                minWidth: "2.5em",
+                                paddingRight: "1em",
+                                color: "#6e7681",
+                                textAlign: "right",
+                                userSelect: "none",
+                            }}
+                        >
+                            {codeText}
+                        </SyntaxHighlighter>
+                    </div>
+                </div>
+            );
+        },
+    };
+
+    const handleShare = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: blog.title, url: window.location.href });
+            } catch {
+                return;
+            }
+        } else {
+            await navigator.clipboard.writeText(window.location.href);
+            setLinkCopied(true);
+            setTimeout(() => setLinkCopied(false), 2000);
+        }
+    };
+
+    const handleCopyLink = async () => {
+        await navigator.clipboard.writeText(window.location.href);
+        setBookmarkCopied(true);
+        setTimeout(() => setBookmarkCopied(false), 2000);
+    };
+
+    return (
+        <div className="bg-[#F9F9FB] min-h-screen selection:bg-[#E21339] selection:text-white pb-32">
+            <Head>
+                <title>{blog.title}</title>
+                <meta name="description" content={metaDescription} />
+                <link rel="canonical" href={`/blog/${blog.slug}`} />
+            </Head>
+
+            <style dangerouslySetInnerHTML={{ __html: MERRIWEATHER_FONT_IMPORT }} />
+
+            <Navigation />
+            <motion.div className="fixed top-0 left-0 right-0 h-1 bg-[#E21339] origin-left z-[60]" style={{ scaleX }} />
+
+            <main className="pt-32 px-4 sm:px-6 mx-auto w-full">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(auto,720px)_1fr] gap-8 max-w-[1400px] mx-auto relative items-start">
+                    <div className="hidden lg:block" />
+
+                    <div className="min-w-0">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-left mb-10">
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="text-[#E21339] text-xs font-bold uppercase tracking-[0.2em] font-sans bg-red-50/80 px-4 py-1.5 rounded-full backdrop-blur-sm border border-red-100">
+                                    Blog Post
+                                </span>
+                            </div>
+
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#242424] tracking-tight mb-8 font-sans leading-[1.25] md:leading-[1.25]">
+                                {blog.title}
+                            </h1>
+
+                            <div className="flex items-center gap-6 text-gray-500 text-sm font-medium font-sans border-b border-gray-200/80 pb-8">
+                                <div className="flex items-center gap-2.5">
+                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                    <span>{formatDate(blog.publishedAt)}</span>
+                                </div>
+                                <div className="w-1 h-1 bg-gray-300 rounded-full" />
+                                <div className="flex items-center gap-2.5">
+                                    <Clock className="w-4 h-4 text-gray-400" />
+                                    <span>{readTime} min read</span>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {blog.coverUrl ? (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.5 }}
+                                className="relative w-full aspect-[16/9] rounded-xl overflow-hidden shadow-xl mb-12 ring-1 ring-black/5"
+                            >
+                                <img src={blog.coverUrl} alt={blog.title} className="w-full h-full object-cover" />
+                            </motion.div>
+                        ) : null}
+
+                        <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
+                            {parse(DOMPurify.sanitize(blog.content), parseOptions)}
+                        </motion.article>
+                    </div>
+
+                    <aside className="hidden lg:block h-full">
+                        <div className="sticky top-32 flex flex-col gap-6 w-fit ml-6">
+                            <div className="flex flex-col items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        void handleShare();
+                                    }}
+                                    className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:text-[#E21339] hover:border-[#E21339]/30 hover:bg-red-50 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 duration-300"
+                                    title="Share Article"
+                                >
+                                    {linkCopied ? <Check className="w-5 h-5 text-green-500" /> : <Share2 className="w-5 h-5" />}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        void handleCopyLink();
+                                    }}
+                                    className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:text-[#E21339] hover:border-[#E21339]/30 hover:bg-red-50 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 duration-300"
+                                    title="Copy link"
+                                >
+                                    {bookmarkCopied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                                </button>
+                            </div>
+
+                            <div className="w-full h-[1px] bg-gray-200 my-1" />
+
+                            <Link
+                                href="/blog"
+                                className="w-12 h-12 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:text-black hover:border-gray-400 transition-all shadow-sm hover:shadow-md"
+                                title="Back to Blog"
+                            >
+                                <ArrowLeft className="w-5 h-5" />
+                            </Link>
+                        </div>
+                    </aside>
+                </div>
+
+                <div className="lg:hidden mt-20 text-center border-t border-gray-200 pt-10">
+                    <Link
+                        href="/blog"
+                        className="inline-flex items-center gap-2 text-sm text-gray-600 font-bold hover:text-[#E21339] transition-colors uppercase tracking-wider"
+                    >
+                        <ArrowLeft className="w-4 h-4" /> Back to All Posts
+                    </Link>
+                </div>
+            </main>
+
+            <style dangerouslySetInnerHTML={{ __html: ARTICLE_BODY_STYLES }} />
+        </div>
+    );
+}
+
+export const getServerSideProps: GetServerSideProps<Props> = async ({ params, res }) => {
+    res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=600");
+
+    const slug = typeof params?.slug === "string" ? params.slug : "";
+    if (!slug) {
+        return { notFound: true };
+    }
+
+    try {
+        if (getBlogSource() === "supabase") {
+            const post = await fetchSupabaseBlogPostBySlug(slug);
+            if (!post) {
+                return { notFound: true };
+            }
+
+            return {
+                props: {
+                    blog: {
+                        id: post.id,
+                        slug: post.slug,
+                        title: post.title,
+                        content: post.content,
+                        summary: post.summary || "",
+                        coverUrl: post.cover_url || "",
+                        publishedAt: post.updated_at || post.created_at,
+                    },
+                },
+            };
+        }
+
+        const post = await fetchBlogPostBySlug(slug);
+        if (!post) {
+            return { notFound: true };
+        }
+
+        return {
+            props: {
+                blog: mapBlogPost(post),
+            },
+        };
+    } catch (error) {
+        console.error(`Failed to fetch blog post for /blog/${slug}:`, error);
+        return { notFound: true };
+    }
+};
