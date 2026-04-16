@@ -55,9 +55,13 @@ export default function FeatureDetailPage() {
                             Join Waitlist
                             <ArrowRight className="w-4 h-4" />
                         </Link>
-                        <a href="#how-it-works" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-brand-border bg-white/80 text-brand-text font-semibold hover:border-brand-primaryAccent/30 transition">
+                        <button
+                            type="button"
+                            onClick={() => window.open("https://www.youtube.com/watch?v=QnRtcMGw6d0", "_blank")}
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-brand-border bg-white/80 text-brand-text font-semibold hover:border-brand-primaryAccent/30 transition"
+                        >
                             See how it works
-                        </a>
+                        </button>
                     </div>
                 </section>
 

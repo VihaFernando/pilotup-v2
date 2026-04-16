@@ -64,7 +64,13 @@ export default function IntegrationsPage() {
                         They use dedicated credentials, execute in your apps, and report back where your team works.
                     </p>
                     <div className="flex flex-wrap gap-4 text-sm font-semibold">
-                        <Link href="/how-it-works" className="text-brand-primaryAccent">See how it works</Link>
+                        <button
+                            type="button"
+                            onClick={() => window.open("https://www.youtube.com/watch?v=QnRtcMGw6d0", "_blank")}
+                            className="text-brand-primaryAccent"
+                        >
+                            See how it works
+                        </button>
                         <Link href="/roles" className="text-brand-text">Explore roles</Link>
                     </div>
                 </section>
@@ -75,4 +81,4 @@ export default function IntegrationsPage() {
     );
 }
 
-export const getStaticProps: GetStaticProps = async () => ({ props: {} });
+export const getStaticProps: GetStaticProps = async () => ({ notFound: true });

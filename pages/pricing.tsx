@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { GetStaticProps } from "next";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Cloud, Server, SlidersHorizontal, ChevronDown, Plus, X } from "lucide-react";
+import { Check, Cloud, Server, SlidersHorizontal, Plus, X } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { WaitlistCTA } from "@/components/WaitlistCTA";
@@ -225,20 +225,33 @@ export default function PricingPage() {
                                         <div className="flex-1">
                                             <p className="text-sm font-medium text-gray-800">{tier.executionLabel}</p>
                                         </div>
-                                        <ChevronDown className="h-4 w-4 text-gray-500" />
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        className={[
-                                            "mt-4 min-h-[42px] w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition",
-                                            tier.featured
-                                                ? "bg-brand-primaryAccent text-white hover:brightness-90"
-                                                : "bg-gray-900 text-white hover:bg-black",
-                                        ].join(" ")}
-                                    >
-                                        {tier.cta}
-                                    </button>
+                                    {isContact ? (
+                                        <a
+                                            href="mailto:marketing@pilotup.io"
+                                            className={[
+                                                "mt-4 inline-flex min-h-[42px] w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition",
+                                                tier.featured
+                                                    ? "bg-brand-primaryAccent text-white hover:brightness-90"
+                                                    : "bg-gray-900 text-white hover:bg-black",
+                                            ].join(" ")}
+                                        >
+                                            {tier.cta}
+                                        </a>
+                                    ) : (
+                                        <Link
+                                            href="/waitlist"
+                                            className={[
+                                                "mt-4 inline-flex min-h-[42px] w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition",
+                                                tier.featured
+                                                    ? "bg-brand-primaryAccent text-white hover:brightness-90"
+                                                    : "bg-gray-900 text-white hover:bg-black",
+                                            ].join(" ")}
+                                        >
+                                            {tier.cta}
+                                        </Link>
+                                    )}
 
                                     <div className="mt-4 min-h-[22px] flex items-center gap-2 text-sm text-gray-600">
                                         {tier.host.includes("self") || tier.host.includes("Self") ? <Server className="h-4 w-4" /> : <Cloud className="h-4 w-4" />}

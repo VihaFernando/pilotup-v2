@@ -69,15 +69,19 @@ export function HeroSection() {
 
       <div className="mt-6 flex w-full flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-center md:justify-start">
         <div className="flex w-full justify-center sm:w-auto sm:justify-start">
-          <GlassButton href="/" className="w-[220px] py-2.5 text-[0.95rem] font-semibold sm:w-auto sm:px-4 sm:py-2 sm:text-sm sm:font-medium">
+          <GlassButton href="/waitlist" className="w-[220px] py-2.5 text-[0.95rem] font-semibold sm:w-auto sm:px-4 sm:py-2 sm:text-sm sm:font-medium">
             Get Started. It{"'"}s FREE.
           </GlassButton>
         </div>
 
-        <div className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-textMuted border-dashed px-4 py-2 text-sm font-semibold text-brand-textMuted transition" >
+        <button
+          type="button"
+          onClick={() => window.open("https://www.youtube.com/watch?v=QnRtcMGw6d0", "_blank")}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-textMuted border-dashed px-4 py-2 text-sm font-semibold text-brand-textMuted transition"
+        >
           <PlayCircle className="h-4 w-4 text-brand-textMuted" />
           <span className="text-brand-textMuted">See How It Works</span>
-        </div>
+        </button>
       </div>
 
       <div className="mt-5 flex w-full items-center justify-center md:justify-start">
@@ -429,7 +433,7 @@ export function WhyPilotUP() {
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link
-            href="/"
+            href="/waitlist"
             className="px-7 py-3.5 rounded-xl bg-brand-primaryAccent text-white font-semibold text-sm hover:bg-brand-primaryAccent/90 transition shadow-sm"
           >
             Get Started - It&apos;s Free

@@ -76,12 +76,12 @@ export function IntegrationsShowcaseSection() {
                 </div>
 
                 <div data-gsap="fade-up" className="mt-8 flex justify-center sm:mt-10">
-                    <Link
+                    {/* <Link
                         href="/"
                         className="inline-flex items-center justify-center rounded-lg bg-brand-primaryAccent px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_22px_-12px_rgba(249,115,22,0.8)] transition hover:brightness-105"
                     >
                         Browse all integrations
-                    </Link>
+                    </Link> */}
                 </div>
             </div>
         </section>
