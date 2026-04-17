@@ -29,7 +29,7 @@ const TIERS: Tier[] = [
         executionLabel: "50,000 credits (One-time)",
         host: "Community Support",
         bullets: [
-            "1 Company Profile",
+            "1 Workplace",
             "3 Active Agents",
             "Forum support",
         ],
@@ -44,7 +44,7 @@ const TIERS: Tier[] = [
         executionLabel: "250,000 credits / mo",
         host: "Priority Support",
         bullets: [
-            "3 Company Profiles",
+            "3 Workplacess",
             "10 Active Agents",
             "Credit Top-Up Bundles",
         ],
@@ -58,7 +58,7 @@ const TIERS: Tier[] = [
         executionLabel: "1,000,000 credits / mo",
         host: "Dedicated Account Manager",
         bullets: [
-            "Unlimited Companies",
+            "Unlimited Workplaces",
             "25 Active Agents",
             "API Access",
         ],
@@ -82,7 +82,7 @@ const TIERS: Tier[] = [
 
 const PLAN_COMPARISON = [
     { feature: "Credits", starter: "50,000 (one-time)", growth: "250,000 / month", executive: "1,000,000 / month" },
-    { feature: "Company Profiles", starter: "1", growth: "3", executive: "Unlimited" },
+    { feature: "Workplacess", starter: "1", growth: "3", executive: "Unlimited" },
     { feature: "Active AI Employees", starter: "3", growth: "10", executive: "25" },
     { feature: "Role Templates", starter: "Basic", growth: "All Templates", executive: "All + Custom" },
     { feature: "Integrations", starter: "3 integrations", growth: "All integrations", executive: "All + API access" },
@@ -104,11 +104,11 @@ const PRICING_FAQS = [
     },
     {
         q: "What happens when I run out of credits?",
-        a: "Your AI employees will pause until your credits renew at the start of your next billing cycle. On the Growth plan, you can also purchase top-up credit bundles at any time.",
+        a: "Your AI employees will pause until your credits renew at the start of your next billing cycle. On all the plans, you can also purchase top-up credit bundles at any time.",
     },
     {
         q: "Is the free plan really free forever?",
-        a: "Yes. The Starter plan is free forever with 50,000 one-time credits, 1 company profile, and 3 active agents. Perfect for exploring and building your first AI employee.",
+        a: "Yes. The Starter plan is free forever with 50,000 one-time credits, 1 Workplaces, and 3 active agents. Perfect for exploring and building your first AI employee. You can top up credits or upgrade to a paid plan anytime as your needs grow.",
     },
     {
         q: "Do you offer custom enterprise plans?",
@@ -116,7 +116,7 @@ const PRICING_FAQS = [
     },
     {
         q: "How does billing work for annual plans?",
-        a: "Annual plans offer a 20% discount. You're billed once per year at the discounted rate. The monthly price shown for annual plans reflects the per-month equivalent.",
+        a: "Annual plans offer a 17% discount. You're billed once per year at the discounted rate. The monthly price shown for annual plans reflects the per-month equivalent.",
     },
 ];
 
