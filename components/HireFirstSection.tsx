@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { submitToWaitlist } from "@/lib/waitlist";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
@@ -25,17 +26,33 @@ const LOGOS = [
     },
 ];
 
+
 export function HireFirstSection() {
     const [email, setEmail] = useState("");
-    const [error, setError] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
-    const handleJoin = () => {
-        if (!email.trim()) {
-            setError("Enter your email");
+    const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+    const handleJoin = async () => {
+        setError(null);
+        if (!isValidEmail(email)) {
+            setError("Enter a valid email");
             return;
         }
-
-        setError("");
+        setLoading(true);
+        try {
+            // No PostHog
+            const { ok, error: apiError } = await submitToWaitlist(email);
+            if (!ok) { setError(apiError || "Something went wrong. Try again."); return; }
+            setEmail("");
+            setShowSuccess(true);
+        } catch {
+            setError("Something went wrong. Try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -90,15 +107,17 @@ export function HireFirstSection() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
                             placeholder="Enter your email..."
                             className="flex-grow px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-brand-text placeholder:text-brand-textMuted bg-transparent outline-none rounded-full min-w-0"
                         />
                         <button
                             type="button"
                             onClick={handleJoin}
-                            className="group flex items-center justify-center w-10 h-10 sm:w-auto sm:px-6 sm:h-12 bg-brand-text text-white rounded-full hover:opacity-90 transition-all duration-300 shadow-lg shrink-0"
+                            disabled={loading}
+                            className={`group flex items-center justify-center w-10 h-10 sm:w-auto sm:px-6 sm:h-12 bg-brand-text text-white rounded-full hover:opacity-90 transition-all duration-300 shadow-lg shrink-0 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            <span className="hidden sm:block font-semibold mr-2 text-sm">Join Waitlist</span>
+                            <span className="hidden sm:block font-semibold mr-2 text-sm">{loading ? 'Joining...' : 'Join Waitlist'}</span>
                             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </motion.div>
@@ -107,6 +126,13 @@ export function HireFirstSection() {
                         <p className="mt-4 text-[10px] sm:text-xs text-brand-primaryAccent sm:ml-6 flex items-center justify-center lg:justify-start gap-1">
                             {error}
                         </p>
+                    )}
+                    {showSuccess && (
+                        <div className="mt-4 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2 max-w-xs mx-auto lg:mx-0 flex items-center justify-center gap-2">
+                            <CheckCircle2 className="w-4 h-4" />
+                            You're on the list! We'll keep in touch by email.
+                            <button className="ml-2 text-emerald-800 hover:underline" onClick={() => setShowSuccess(false)}>&times;</button>
+                        </div>
                     )}
 
                     <p className="mt-4 text-[10px] sm:text-xs text-brand-textMuted sm:ml-6 flex items-center justify-center lg:justify-start gap-1">
