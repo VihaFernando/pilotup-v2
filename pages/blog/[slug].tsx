@@ -4,15 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { Calendar, ArrowLeft, Share2, Clock, Check, Copy } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import parse, { HTMLReactParserOptions, Element } from "html-react-parser";
-import sanitizeHtml from "sanitize-html";
+import parse, { HTMLReactParserOptions } from "html-react-parser";
 import BlogPreBlock from "@/components/BlogPreBlock";
 import { Navigation } from "@/components/Navigation";
 import { getBlogSource } from "@/lib/blogConfig";
 import { ARTICLE_BODY_STYLES, MERRIWEATHER_FONT_IMPORT } from "@/lib/articleStyles";
 import { fetchBlogPostBySlug } from "@/lib/strapi";
-import { BlogViewModel, calculateReadTimeFromHtml, extractTextFromHTML, formatDate, mapBlogPost } from "@/lib/blog";
+import { BlogViewModel, calculateReadTimeFromHtml, extractTextFromHTML, formatDate, mapBlogPost, resolveStrapiAsset } from "@/lib/blog";
 import { fetchSupabaseBlogPostBySlug } from "@/lib/supabaseBlog";
+import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 
 type Props = {
     blog: BlogViewModel | null;
@@ -31,6 +31,8 @@ function escapeHtml(value: string): string {
 
 function decodeHtmlEntities(value: string): string {
     return value
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#160;/g, " ")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
         .replace(/&amp;/g, "&")
@@ -81,10 +83,16 @@ function normalizeCodeContent(rawHtml: string): string {
         result += withFencedBlocks.slice(lastIndex, start);
         lastIndex = start + fullMatch.length;
 
-        const plainText = decodeHtmlEntities(innerHtml.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "").trim());
-        if (looksLikeCodeLine(plainText)) {
+        const paragraphText = decodeHtmlEntities(
+            innerHtml
+                .replace(/<br\s*\/?>/gi, "\n")
+                .replace(/<[^>]+>/g, "")
+                .replace(/\r\n?/g, "\n")
+        );
+
+        if (looksLikeCodeLine(paragraphText.trim())) {
             runOriginalParagraphs.push(fullMatch);
-            runCodeLines.push(plainText);
+            runCodeLines.push(paragraphText);
         } else {
             flushRun();
             result += fullMatch;
@@ -94,6 +102,27 @@ function normalizeCodeContent(rawHtml: string): string {
     result += withFencedBlocks.slice(lastIndex);
     flushRun();
     return result;
+}
+
+type ParsedHtmlNode = {
+    type?: string;
+    name?: string;
+    data?: string;
+    attribs?: Record<string, string>;
+    children?: ParsedHtmlNode[];
+};
+
+function collectTextContent(node?: ParsedHtmlNode): string {
+    if (!node) return "";
+    if (node.type === "text") return node.data ?? "";
+    if (!Array.isArray(node.children) || node.children.length === 0) return "";
+    return node.children.map((child) => collectTextContent(child)).join("");
+}
+
+function extractLanguageFromClass(className?: string): string | undefined {
+    if (!className) return undefined;
+    const match = className.match(/language-([a-z0-9_+-]+)/i);
+    return match?.[1];
 }
 
 declare global {
@@ -136,28 +165,51 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
 
     const parseOptions: HTMLReactParserOptions = {
         replace: (domNode) => {
-            if (!(domNode instanceof Element) || domNode.name !== "pre") {
+            const node = domNode as ParsedHtmlNode;
+
+            if (node.type !== "tag" || !node.name) {
                 return undefined;
             }
 
-            let codeText = "";
-            const codeElement = domNode.children.find((child) => child instanceof Element && child.name === "code");
+            if (node.name === "img") {
+                const source = resolveStrapiAsset(node.attribs?.src ?? "");
+                if (!source) return null;
 
-            if (codeElement && "children" in codeElement && codeElement.children.length > 0) {
-                const first = codeElement.children[0];
-                if ("data" in first && typeof first.data === "string") {
-                    codeText = first.data;
-                }
+                const altText = node.attribs?.alt ?? "";
+
+                return (
+                    <img
+                        src={source}
+                        alt={altText}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        style={{
+                            display: "block",
+                            width: "100%",
+                            maxWidth: "100%",
+                            height: "auto",
+                            margin: "3.5rem 0",
+                            borderRadius: "0.75rem",
+                            boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.1)",
+                        }}
+                    />
+                );
             }
 
-            if (!codeText && domNode.children.length > 0) {
-                const first = domNode.children[0] as { data?: string };
-                codeText = first.data || "";
+            if (node.name !== "pre") {
+                return undefined;
             }
+
+            const codeElement = node.children?.find((child) => child.type === "tag" && child.name === "code");
+            const codeText = (codeElement ? collectTextContent(codeElement) : collectTextContent(node))
+                .replace(/^\n+/, "")
+                .replace(/\n+$/, "");
 
             if (!codeText) return null;
 
             const key = codeText.substring(0, 20);
+            const language = extractLanguageFromClass(codeElement?.attribs?.class ?? node.attribs?.class);
 
             return (
                 <BlogPreBlock
@@ -165,6 +217,7 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
                     copyKey={key}
                     copiedStates={copiedStates}
                     setCopiedStates={setCopiedStates}
+                    language={language}
                 />
             );
         },
@@ -244,7 +297,7 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(sanitizeHtml(normalizeCodeContent(safeContent)), parseOptions)}
+                            {parse(sanitizeBlogHtml(normalizeCodeContent(safeContent)), parseOptions)}
                         </motion.article>
                     </div>
 

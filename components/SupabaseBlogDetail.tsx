@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Calendar, ArrowLeft, Share2, Clock, Check, Copy } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
-import sanitizeHtml from "sanitize-html";
 import parse from "html-react-parser";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Navigation } from "@/components/Navigation";
 import { fetchSupabaseBlogPostBySlug, type SupabaseBlogPost } from "@/lib/supabaseBlog";
-import { extractTextFromHTML, formatDate } from "@/lib/blog";
+import { extractTextFromHTML, formatDate, resolveStrapiAsset } from "@/lib/blog";
 import { ARTICLE_BODY_STYLES, MERRIWEATHER_FONT_IMPORT } from "@/lib/articleStyles";
+import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 
 declare global {
     interface Window {
@@ -56,6 +56,30 @@ export function SupabaseBlogDetail() {
 
     const parseOptions = {
         replace: (domNode: any) => {
+            if (domNode.name === "img") {
+                const source = resolveStrapiAsset(domNode.attribs?.src ?? "");
+                if (!source) return null;
+
+                return (
+                    <img
+                        src={source}
+                        alt={domNode.attribs?.alt ?? ""}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                        style={{
+                            display: "block",
+                            width: "100%",
+                            maxWidth: "100%",
+                            height: "auto",
+                            margin: "3.5rem 0",
+                            borderRadius: "0.75rem",
+                            boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.1)",
+                        }}
+                    />
+                );
+            }
+
             if (domNode.name === "pre") {
                 let codeText = "";
                 if (domNode.children && domNode.children.length > 0) {
@@ -272,7 +296,7 @@ export function SupabaseBlogDetail() {
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(sanitizeHtml(safeContent), parseOptions as any)}
+                            {parse(sanitizeBlogHtml(safeContent), parseOptions as any)}
                         </motion.article>
                     </div>
 
