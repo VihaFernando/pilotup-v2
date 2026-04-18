@@ -54,6 +54,53 @@ export function SupabaseBlogDetail() {
         void fetchBlog();
     }, [slug]);
 
+    const SANITIZE_OPTIONS = {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img", "figure", "figcaption", "span", "div"]),
+        allowedAttributes: {
+            ...sanitizeHtml.defaults.allowedAttributes,
+            a: [...(sanitizeHtml.defaults.allowedAttributes?.a ?? []), "style", "class", "target", "rel"],
+            img: [...(sanitizeHtml.defaults.allowedAttributes?.img ?? []), "style", "class", "title", "width", "height", "loading"],
+            figure: ["style", "class"],
+            figcaption: ["style", "class"],
+            div: ["style", "class", "align"],
+            span: ["style", "class"],
+            p: ["style", "class", "align"],
+            h1: ["style", "class", "align"],
+            h2: ["style", "class", "align"],
+            h3: ["style", "class", "align"],
+            h4: ["style", "class", "align"],
+            h5: ["style", "class", "align"],
+            h6: ["style", "class", "align"],
+            blockquote: ["style", "class"],
+            pre: ["style", "class"],
+            code: ["style", "class"],
+        },
+        allowedStyles: {
+            "*": {
+                "text-align": [/^left$|^right$|^center$|^justify$/],
+                float: [/^left$|^right$/],
+                display: [/^block$|^inline$|^inline-block$|^flex$/],
+                width: [/^[0-9.]+(?:px|em|rem|%)$/],
+                height: [/^[0-9.]+(?:px|em|rem|%)$/],
+                margin: [/^[0-9.%\s-]+$/],
+                "margin-left": [/^[0-9.%\s-]+$/],
+                "margin-right": [/^[0-9.%\s-]+$/],
+                "margin-top": [/^[0-9.%\s-]+$/],
+                "margin-bottom": [/^[0-9.%\s-]+$/],
+                padding: [/^[0-9.%\s-]+$/],
+                color: [/^[#a-zA-Z0-9\s(),.%+-]+$/],
+                "background-color": [/^rgba?\([0-9,\s]+\)$/],
+                "max-width": [/^[0-9.%\s-]+$/],
+                "min-width": [/^[0-9.%\s-]+$/],
+            },
+        },
+        allowedSchemesByTag: {
+            img: ["http", "https", "data"],
+            a: ["http", "https", "mailto", "tel"],
+        },
+        allowProtocolRelative: true,
+    };
+
     const parseOptions = {
         replace: (domNode: any) => {
             if (domNode.name === "pre") {
@@ -272,7 +319,7 @@ export function SupabaseBlogDetail() {
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(sanitizeHtml(safeContent), parseOptions as any)}
+                            {parse(sanitizeHtml(safeContent, SANITIZE_OPTIONS), parseOptions as any)}
                         </motion.article>
                     </div>
 

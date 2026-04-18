@@ -76,16 +76,34 @@ function blocksToHtml(blocks: any): string {
         .join("\n");
 }
 
-function normalizeContent(content: unknown): string {
-    if (typeof content === "string") return content;
-    if (Array.isArray(content)) return blocksToHtml(content);
-    return "";
-}
-
 export function resolveStrapiAsset(url?: string | null): string {
     if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
     return `${STRAPI_PUBLIC_URL}${url}`;
+}
+
+function resolveStrapiAssetInHtml(html: string): string {
+    return html
+        .replace(/(<img[^>]+src=["'])(\/[^"']+)(["'])/gi, (_match, prefix, src, quote) => {
+            return `${prefix}${resolveStrapiAsset(src)}${quote}`;
+        })
+        .replace(/(<img[^>]+srcset=["'])(.*?)(["'])/gi, (_match, prefix, value, quote) => {
+            const normalized = value
+                .split(",")
+                .map((item: string) => {
+                    const [url, descriptor] = item.trim().split(/\s+/);
+                    const resolvedUrl = url.startsWith("http") || url.startsWith("data:") ? url : resolveStrapiAsset(url);
+                    return descriptor ? `${resolvedUrl} ${descriptor}` : resolvedUrl;
+                })
+                .join(", ");
+            return `${prefix}${normalized}${quote}`;
+        });
+}
+
+function normalizeContent(content: unknown): string {
+    if (typeof content === "string") return resolveStrapiAssetInHtml(content);
+    if (Array.isArray(content)) return resolveStrapiAssetInHtml(blocksToHtml(content));
+    return "";
 }
 
 export function mapBlogPost(post: BlogPost): BlogViewModel {
