@@ -18,7 +18,7 @@ type Props = {
     blog: BlogViewModel | null;
 };
 
-const FENCED_CODE_BLOCK_REGEX = /(?:```|~~~)(?:[^\r\n]*)\r?\n([\s\S]*?)(?:```|~~~)/g;
+const FENCED_CODE_BLOCK_REGEX = /```(?:[\w-]+)?\n([\s\S]*?)```/g;
 
 function escapeHtml(value: string): string {
     return value
@@ -49,10 +49,8 @@ function looksLikeCodeLine(line: string): boolean {
 }
 
 function normalizeCodeContent(rawHtml: string): string {
-    const withFencedBlocks = rawHtml.replace(FENCED_CODE_BLOCK_REGEX, (_match, lang: string, code: string) => {
-        const language = lang?.trim().split(/\s+/)[0] || "";
-        const className = language ? ` class="language-${language}"` : "";
-        return `<pre><code${className}>${escapeHtml(code.trimEnd())}</code></pre>`;
+    const withFencedBlocks = rawHtml.replace(FENCED_CODE_BLOCK_REGEX, (_match, code: string) => {
+        return `<pre><code>${escapeHtml(code.trimEnd())}</code></pre>`;
     });
 
     const paragraphRegex = /<p>([\s\S]*?)<\/p>/gi;
@@ -97,53 +95,6 @@ function normalizeCodeContent(rawHtml: string): string {
     flushRun();
     return result;
 }
-
-const SANITIZE_OPTIONS = {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img", "figure", "figcaption", "span", "div"]),
-    allowedAttributes: {
-        ...sanitizeHtml.defaults.allowedAttributes,
-        a: [...(sanitizeHtml.defaults.allowedAttributes?.a ?? []), "style", "class", "target", "rel"],
-        img: [...(sanitizeHtml.defaults.allowedAttributes?.img ?? []), "style", "class", "title", "width", "height", "loading"],
-        figure: ["style", "class"],
-        figcaption: ["style", "class"],
-        div: ["style", "class", "align"],
-        span: ["style", "class"],
-        p: ["style", "class", "align"],
-        h1: ["style", "class", "align"],
-        h2: ["style", "class", "align"],
-        h3: ["style", "class", "align"],
-        h4: ["style", "class", "align"],
-        h5: ["style", "class", "align"],
-        h6: ["style", "class", "align"],
-        blockquote: ["style", "class"],
-        pre: ["style", "class"],
-        code: ["style", "class"],
-    },
-    allowedStyles: {
-        "*": {
-            "text-align": [/^left$|^right$|^center$|^justify$/],
-            float: [/^left$|^right$/],
-            display: [/^block$|^inline$|^inline-block$|^flex$/],
-            width: [/^[0-9.]+(?:px|em|rem|%)$/],
-            height: [/^[0-9.]+(?:px|em|rem|%)$/],
-            margin: [/^[0-9.%\s-]+$/],
-            "margin-left": [/^[0-9.%\s-]+$/],
-            "margin-right": [/^[0-9.%\s-]+$/],
-            "margin-top": [/^[0-9.%\s-]+$/],
-            "margin-bottom": [/^[0-9.%\s-]+$/],
-            padding: [/^[0-9.%\s-]+$/],
-            color: [/^[#a-zA-Z0-9\s(),.%+-]+$/],
-            "background-color": [/^rgba?\([0-9,\s]+\)$/],
-            "max-width": [/^[0-9.%\s-]+$/],
-            "min-width": [/^[0-9.%\s-]+$/],
-        },
-    },
-    allowedSchemesByTag: {
-        img: ["http", "https", "data"],
-        a: ["http", "https", "mailto", "tel"],
-    },
-    allowProtocolRelative: true,
-};
 
 declare global {
     interface Window {
@@ -190,25 +141,12 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
             }
 
             let codeText = "";
-            let language = "text";
-            const codeElement = domNode.children.find(
-                (child): child is Element => child instanceof Element && child.name === "code"
-            );
+            const codeElement = domNode.children.find((child) => child instanceof Element && child.name === "code");
 
             if (codeElement && "children" in codeElement && codeElement.children.length > 0) {
                 const first = codeElement.children[0];
                 if ("data" in first && typeof first.data === "string") {
                     codeText = first.data;
-                }
-            }
-
-            if (codeElement && "attribs" in codeElement) {
-                const className = (codeElement.attribs?.class ?? codeElement.attribs?.className) as string | undefined;
-                if (className) {
-                    const match = className.match(/language-([^\s]+)/);
-                    if (match) {
-                        language = match[1];
-                    }
                 }
             }
 
@@ -224,7 +162,6 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
             return (
                 <BlogPreBlock
                     codeText={codeText}
-                    language={language}
                     copyKey={key}
                     copiedStates={copiedStates}
                     setCopiedStates={setCopiedStates}
@@ -307,7 +244,7 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
                         ) : null}
 
                         <motion.article initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="article-body">
-                            {parse(sanitizeHtml(normalizeCodeContent(safeContent), SANITIZE_OPTIONS), parseOptions)}
+                            {parse(sanitizeHtml(normalizeCodeContent(safeContent)), parseOptions)}
                         </motion.article>
                     </div>
 

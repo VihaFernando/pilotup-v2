@@ -177,7 +177,7 @@ export function EmployeesSection() {
         <h2 id="employees-section-heading" className="mt-2 text-2xl font-semibold tracking-tight text-brand-text sm:text-3xl lg:text-4xl">
           See Your AI Employees At Work
         </h2>
-        <p className="mt-2 max-w-2xl text-sm text-brand-textMuted sm:text-base lg:pb-12">
+        <p className="mt-2 max-w-2xl text-sm text-brand-textMuted sm:text-base lg:pb-16">
           Switch between roles to preview real workflows and results from each AI Employee.
         </p>
       </div>
