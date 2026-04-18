@@ -220,7 +220,7 @@ export function EmployeesSection() {
           className={[
             "hidden lg:flex lg:flex-col lg:w-[min(100%,300px)] lg:flex-shrink-0 lg:border-b-0 lg:border-brand-border/80 h-fit",
             "lg:transform-gpu lg:transition-all lg:duration-700 lg:ease-out",
-            desktopReveal ? "lg:opacity-100 lg:translate-y-0" : "lg:opacity-40",
+            desktopReveal ? "opacity-100 scale-100" : "opacity-75 scale-105",
           ].join(" ")}
           role="tablist"
           aria-label="Employee types"
@@ -275,7 +275,7 @@ export function EmployeesSection() {
           className={[
             "relative z-10 mt-2 h-full flex-1 flex items-end justify-center overflow-hidden py-4 sm:py-6 lg:ml-8 lg:mt-0 lg:overflow-visible xl:ml-12",
             "lg:transform-gpu lg:transition-all lg:duration-700 lg:delay-100 lg:ease-out",
-            desktopReveal ? "lg:opacity-100 lg:translate-y-0" : "lg:translate-y-10 lg:opacity-40",
+            desktopReveal ? "opacity-100 scale-100" : "opacity-75 scale-105",
           ].join(" ")}
           style={{
             backgroundImage: "radial-gradient(rgb(var(--color-border) / 0.35) 1px, transparent 1px)",
