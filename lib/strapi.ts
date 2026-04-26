@@ -10,7 +10,7 @@ const STRAPI_URLS = Array.from(
 );
 const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN || process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
 
-async function strapiFetch<T>(path: string): Promise<T> {
+export async function strapiFetch<T>(path: string): Promise<T> {
   const errors: string[] = [];
 
   for (const baseUrl of STRAPI_URLS) {
@@ -48,6 +48,46 @@ async function strapiFetch<T>(path: string): Promise<T> {
   }
 
   throw new Error(`Strapi fetch failed for ${path}. Attempts: ${errors.join(" | ")}`);
+}
+
+/**
+ * Server-only Strapi update. Requires `STRAPI_API_TOKEN` with update permission.
+ * Tries the same `STRAPI_URLS` list as `strapiFetch` so a valid read host (e.g. `NEXT_PUBLIC_STRAPI_URL`)
+ * is not paired with a failed write to `STRAPI_URL` (e.g. a dead localhost in `.env`).
+ */
+export async function strapiPut<T>(path: string, data: { data: Record<string, unknown> }): Promise<T> {
+  if (!STRAPI_API_TOKEN) {
+    throw new Error("STRAPI_API_TOKEN is required for Strapi updates");
+  }
+  const rel = path.startsWith("/") ? path : `/${path}`;
+  const errors: string[] = [];
+
+  for (const baseUrl of STRAPI_URLS) {
+    const url = `${baseUrl.replace(/\/$/, "")}${rel}`;
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+        },
+        body: JSON.stringify(data),
+        cache: "no-store",
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown network error";
+      errors.push(`${url} [network] -> ${message}`);
+      continue;
+    }
+    if (response.ok) {
+      return response.json() as Promise<T>;
+    }
+    const text = await response.text().catch(() => "");
+    errors.push(`(${response.status}) ${url} -> ${text || response.statusText}`);
+  }
+
+  throw new Error(`Strapi PUT failed for ${path}. Attempts: ${errors.join(" | ")}`);
 }
 
 function normalizePage(raw: any): Page {

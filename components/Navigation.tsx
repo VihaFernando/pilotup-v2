@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
       { label: "How It Works", to: "/how-it-works", desc: "Get started in 5 steps" },
       // { label: "Integrations", to: "/integrations", desc: "Slack, Gmail, ClickUp & more" },
       { label: "View All Roles", to: "/roles", desc: "Explore AI employee roles" },
+      { label: "Feature requests", to: "/feature-requests", desc: "Vote on what we build next" },
     ],
   },
   {

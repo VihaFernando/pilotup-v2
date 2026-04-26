@@ -67,29 +67,25 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white mb-6">Resources</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/waitlist" className="hover:text-white transition-colors">Join Waitlist</Link></li>
+              <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+              <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
+              <li><Link href="/feature-requests" className="hover:text-white transition-colors">Feature Requests</Link></li>
               <li>
                 <a href="https://cal.com/nigeljacob/1-on-1" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
                   Talk to Founders <ArrowUpRight className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.youtube.com/watch?v=QnRtcMGw6d0" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
-                  Watch Demo <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-bold text-white mb-6">Company</h4>
+            <h4 className="font-bold text-white mb-6">Company & legal</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link href="/login" className="hover:text-white transition-colors">Login</Link></li>
-              <li><Link href="/signup" className="hover:text-white transition-colors">Sign Up</Link></li>
-              <li><a href="mailto:hello@pilotup.io" className="hover:text-white transition-colors">Contact Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+              <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">Blogs</Link></li>
+              <li><Link href="/brand-assets" className="hover:text-white transition-colors">Brand Assets</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>
@@ -98,8 +94,8 @@ export function Footer() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-gray-500 text-xs">© {currentYear} PilotUP Inc. All rights reserved.</div>
             <div className="flex items-center gap-6 text-xs text-gray-500">
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
               <a href="mailto:hello@pilotup.io" className="hover:text-white transition-colors">hello@pilotup.io</a>
             </div>
           </div>

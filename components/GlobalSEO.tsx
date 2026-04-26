@@ -74,6 +74,10 @@ export function GlobalSEO({ initialPage }: { initialPage?: Page }) {
     []
   );
 
+  if (shouldSkipSeoLookup(router.asPath)) {
+    return null;
+  }
+
   return (
     <Head>
       <title>{meta.title}</title>
