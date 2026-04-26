@@ -12,6 +12,19 @@ export type BlogViewModel = {
     publishedAt: string;
 };
 
+/** List / feed cards only — no full `content` (keeps `__NEXT_DATA__` small). */
+export type BlogFeedItem = {
+    id: number;
+    slug: string;
+    title: string;
+    coverUrl: string;
+    publishedAt: string;
+    excerptFeatured: string;
+    excerptCard: string;
+    readTimeMinutes: number;
+    searchIndex: string;
+};
+
 type AnyObject = Record<string, any>;
 
 function getAttrs(post: BlogPost): AnyObject {
@@ -129,4 +142,29 @@ export function extractTextFromHTML(html: unknown, maxLength = 200): string {
 function stripHtml(html: unknown): string {
     const normalized = normalizeContent(html);
     return normalized.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Full plain text for search (server-only preprocessing). */
+export function plainTextFromContent(html: unknown): string {
+    return stripHtml(html);
+}
+
+/**
+ * Strips full post body from the client payload; compute excerpts and search text on the server.
+ */
+export function blogViewModelToFeedItem(vm: BlogViewModel): BlogFeedItem {
+    const { content, summary } = vm;
+    const excerptSource = summary?.trim() ? summary : content;
+    const plain = plainTextFromContent(content);
+    return {
+        id: vm.id,
+        slug: vm.slug,
+        title: vm.title,
+        coverUrl: vm.coverUrl,
+        publishedAt: vm.publishedAt,
+        excerptFeatured: extractTextFromHTML(excerptSource, 180),
+        excerptCard: extractTextFromHTML(excerptSource, 120),
+        readTimeMinutes: calculateReadTimeFromHtml(content),
+        searchIndex: plain.slice(0, 20_000).toLowerCase(),
+    };
 }
