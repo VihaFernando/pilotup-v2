@@ -10,14 +10,14 @@ export function FeatureRequestsNavbar() {
           className="flex min-w-0 items-center gap-2 rounded-lg outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[rgb(252,94,86)]/40"
         >
           <img
-            src="/Logo-5.png"
+            src="/brand-assets/png/full-logo-dark.png"
             alt="PilotUP"
             className="h-7 w-auto object-contain md:hidden"
             width={120}
             height={28}
           />
           <img
-            src="/Logo-primary.png"
+            src="/brand-assets/png/logo-transparent.png"
             alt="PilotUP"
             className="hidden h-7 w-7 object-contain md:block"
             width={28}

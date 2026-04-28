@@ -121,12 +121,12 @@ export function DocsPageShell({
           <div className="z-30 flex shrink-0 items-center justify-between border-b border-slate-200/90 bg-white/90 px-4 py-2.5 backdrop-blur-md lg:hidden dark:border-[#3d3d3d] dark:bg-[#2b2b2b]/90">
             <Link href="/" className="flex items-center gap-2">
               <img
-                src="/brand-assets/vectors/Logo-5.svg"
+                src="/brand-assets/svg/full-logo-dark.svg"
                 alt="PilotUP"
                 className="h-8 w-auto max-w-[160px] object-contain object-left dark:hidden sm:h-9 sm:max-w-[200px]"
               />
               <img
-                src="/brand-assets/vectors/Logo-6.svg"
+                src="/brand-assets/svg/full-logo-light.svg"
                 alt=""
                 className="hidden h-8 w-auto max-w-[160px] object-contain object-left dark:block sm:h-9 sm:max-w-[200px]"
                 aria-hidden

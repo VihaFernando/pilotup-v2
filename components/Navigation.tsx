@@ -110,8 +110,8 @@ const Navbar = ({ showAnnouncement, scrolled, setScrolled }: NavbarProps) => {
         `}
         >
           <Link href="/" className="flex items-center gap-2.5 cursor-pointer group">
-            <img src="/Logo-5.png" alt="PilotUP Logo" className="block md:hidden h-6 object-contain" />
-            <img src="/Logo-primary.png" alt="PilotUP Logo" className="hidden md:block h-8 w-8 object-contain" />
+            <img src="/brand-assets/png/full-logo-dark.png" alt="PilotUP Logo" className="block md:hidden h-6 object-contain" />
+            <img src="/brand-assets/png/logo-transparent.png" alt="PilotUP Logo" className="hidden md:block h-8 w-8 object-contain" />
 
           </Link>
 

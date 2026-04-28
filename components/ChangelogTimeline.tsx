@@ -39,7 +39,7 @@ const CHANGELOG_RICH: string = [
 ].join(" ");
 
 const GRADIENT =
-  "pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-32 bg-gradient-to-t from-brand-surface via-brand-surface/90 to-transparent dark:from-zinc-950 dark:via-zinc-950/90";
+  "pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-32 bg-gradient-to-t from-brand-surface via-brand-surface/90 to-transparent";
 
 function ChangelogReleaseNotes({ html, entryId }: { html: string; entryId: string }) {
   const innerRef = useRef<HTMLDivElement>(null);

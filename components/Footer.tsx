@@ -10,7 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-8 mb-16">
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-6 cursor-pointer group w-fit">
-              <img src="/Logo-6.png" alt="PilotUP Logo" className="h-8 w-auto object-contain" />
+              <img src="/brand-assets/png/full-logo-light.png" alt="PilotUP Logo" className="h-8 w-auto object-contain" />
             </Link>
 
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs mb-8">

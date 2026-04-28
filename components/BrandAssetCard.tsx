@@ -4,25 +4,25 @@ const PREVIEW_H = "h-[200px] sm:h-[220px]";
 
 export function BrandAssetCard({ card }: { card: BrandAssetCardType }) {
   return (
-    <article className="flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-brand-border/90 bg-white">
+    <article className={`flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-brand-border/90`} >
       <div
         className={[
-          "flex shrink-0 items-center justify-center px-20 py-8",
-          PREVIEW_H,
           card.preview.bgClass,
+          "flex shrink-0 items-center justify-center px-20 py-8 z-10",
+          PREVIEW_H,
         ].join(" ")}
       >
         <img
           src={card.preview.image}
           alt={card.preview.alt}
-          className={card.preview.imageClassName ?? "max-h-12 w-auto max-w-[75%] object-contain"}
+          className={"h-full w-auto max-h-[80%] object-contain"}
           loading="lazy"
         />
       </div>
       <div className="mt-auto flex min-h-0 flex-col border-t border-brand-border/80 bg-white">
         <div className="divide-y divide-brand-border/60">
           <DownloadRow label="PNG" href={card.png.href} downloadAs={card.png.downloadAs} />
-          <DownloadRow label="SVG" href={card.svg.href} downloadAs={card.svg.downloadAs} />
+          {card.svg ? <DownloadRow label="SVG" href={card.svg.href} downloadAs={card.svg.downloadAs} /> : null}
         </div>
       </div>
     </article>
