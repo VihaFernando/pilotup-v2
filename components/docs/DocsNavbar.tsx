@@ -23,14 +23,14 @@ export function DocsNavbar({ isDark, onToggleTheme, onOpenSpotlight }: DocsNavba
           aria-label="PilotUP home"
         >
           <img
-            src="/brand-assets/svg/full-logo-dark.svg"
+            src="/brand-assets/png/full-logo-light.png"
             alt="PilotUP"
-            className="h-14 w-auto max-w-[220px] object-contain object-left dark:hidden sm:h-[3.75rem] sm:max-w-[260px]"
+            className="h-7 w-auto max-w-[145px] object-contain object-left dark:hidden sm:h-8 sm:max-w-[165px]"
           />
           <img
-            src="/brand-assets/svg/full-logo-light.svg"
+            src="/brand-assets/png/full-logo-dark.png"
             alt=""
-            className="hidden h-9 w-auto max-w-[180px] object-contain object-left dark:block sm:h-10 sm:max-w-[220px]"
+            className="hidden h-7 w-auto max-w-[145px] object-contain object-left dark:block sm:h-8 sm:max-w-[165px]"
             aria-hidden
           />
           <span className="rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 dark:border-[#4a4a4a] dark:bg-[#363636] dark:text-[#c4c4c4]">

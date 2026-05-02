@@ -88,6 +88,18 @@ function resolveHashField(flat: AnyObject): string {
   return discovered || HASH_FIELD;
 }
 
+function getNotionPageId(a: AnyObject): string | undefined {
+  const raw =
+    a.notionPageId ??
+    a.notion_page_id ??
+    a.notionId ??
+    a.notion_id ??
+    a.pageId ??
+    a.page_id;
+  const s = typeof raw === "string" ? raw.trim() : "";
+  return s.length > 0 ? s : undefined;
+}
+
 function normalizeItem(raw: { id?: number | string; documentId?: string; attributes?: AnyObject } & AnyObject): FeatureRequestEntry | null {
   const a = getFlat(raw);
   const title = String(a.title ?? "").trim();
@@ -96,6 +108,7 @@ function normalizeItem(raw: { id?: number | string; documentId?: string; attribu
   }
   return {
     strapiId: getStrapiId(a, raw),
+    notionPageId: getNotionPageId(a),
     title,
     description: String(a.description ?? "").trim(),
     type: normalizeType(a.type),

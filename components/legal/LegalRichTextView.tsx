@@ -7,16 +7,17 @@ import { Footer } from "@/components/Footer";
 import type { DocTocItem } from "@/lib/docHeadings";
 
 const LEGAL_RICH_CLASS = [
-  "legal-rich mt-6 text-base leading-relaxed text-brand-textMuted",
-  "[&_p]:mb-4 [&_p]:last:mb-0",
+  "legal-rich mt-6 text-base font-normal leading-relaxed text-brand-textMuted",
+  "[&_p]:mb-4 [&_p]:font-normal [&_p]:last:mb-0",
   "[&_ul]:mb-4 [&_ul]:ml-5 [&_ul]:list-disc",
   "[&_ol]:mb-4 [&_ol]:ml-5 [&_ol]:list-decimal",
-  "[&_li]:mb-1.5",
+  "[&_li]:mb-1.5 [&_li]:font-normal",
   "[&_a]:font-medium [&_a]:text-[rgb(252,94,86)] [&_a]:underline-offset-2 hover:[&_a]:underline",
-  "[&_strong]:font-semibold [&_h1]:mb-4 [&_h1]:scroll-mt-28 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-brand-text",
-  "[&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:scroll-mt-28 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-brand-text [&_h2]:first:mt-0",
-  "[&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:scroll-mt-24 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-brand-text",
-  "[&_h4]:scroll-mt-24 [&_h5]:scroll-mt-24 [&_h6]:scroll-mt-24",
+  "[&_strong]:font-medium [&_h1]:mb-4 [&_h1]:scroll-mt-28 [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:text-brand-text",
+  "[&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:scroll-mt-28 [&_h2]:text-xl [&_h2]:font-medium [&_h2]:text-brand-text [&_h2]:first:mt-0",
+  "[&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:scroll-mt-24 [&_h3]:text-lg [&_h3]:font-medium [&_h3]:text-brand-text",
+  "[&_h4]:scroll-mt-24 [&_h4]:font-medium [&_h5]:scroll-mt-24 [&_h5]:font-medium [&_h6]:scroll-mt-24 [&_h6]:font-medium",
+  "[&_hr]:mt-5 [&_hr]:mb-8 [&_hr]:border-brand-border/60",
   "[&_code]:rounded [&_code]:bg-black/5 [&_code]:px-1 [&_code]:text-[0.9em] dark:[&_code]:bg-white/10",
   "[&_blockquote]:border-l-4 [&_blockquote]:border-brand-border [&_blockquote]:pl-3 [&_blockquote]:italic",
   "[&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-brand-border/80 [&_th]:bg-brand-surface-alt [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_td]:border [&_td]:border-brand-border/60 [&_td]:px-3 [&_td]:py-2",
@@ -40,14 +41,13 @@ export function LegalRichTextView({ title, lastUpdated, path, html, toc, content
 
       <div className="mx-auto w-full max-w-6xl px-4 pb-20 pt-28 sm:px-6 sm:pt-32 md:px-8">
         <header className="mb-10 text-left sm:mb-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-primaryAccent">Legal</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-brand-text sm:text-4xl md:text-5xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-brand-text sm:text-4xl md:text-5xl">
             {title}
           </h1>
           <p className="mt-3 text-sm text-brand-textMuted sm:text-base">Last updated: {lastUpdated}</p>
         </header>
 
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 text-left lg:flex-row lg:items-start lg:gap-10">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 text-left lg:flex-row lg:items-start lg:gap-16 xl:gap-20">
           <div className="min-w-0 flex-1 lg:max-w-3xl">
             <article
               key={contentKey}

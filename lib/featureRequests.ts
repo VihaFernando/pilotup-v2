@@ -13,6 +13,8 @@ export type FeatureReviewStatus =
 
 export type FeatureRequestEntry = {
   strapiId: string;
+  /** Notion page ID from automation create/list — used for `/api/requests/upvote`. */
+  notionPageId?: string;
   title: string;
   description: string;
   type: FeatureRequestType;

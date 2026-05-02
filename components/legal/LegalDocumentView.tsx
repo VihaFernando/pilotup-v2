@@ -59,8 +59,7 @@ export function LegalDocumentView({ document: doc }: Props) {
 
       <div className="mx-auto w-full max-w-6xl px-4 pb-20 pt-28 sm:px-6 sm:pt-32 md:px-8">
         <header className="mb-10 max-w-3xl text-left sm:mb-12">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-primaryAccent">Legal</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-brand-text sm:text-4xl md:text-5xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-brand-text sm:text-4xl md:text-5xl">
             {doc.title}
           </h1>
           <p className="mt-3 text-sm text-brand-textMuted sm:text-base">Last updated: {doc.lastUpdated}</p>
@@ -92,10 +91,10 @@ export function LegalDocumentView({ document: doc }: Props) {
           </ol>
         </nav>
 
-        <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[minmax(0,1fr),minmax(200px,260px)] lg:items-start lg:gap-12 xl:gap-14">
+        <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[minmax(0,1fr),minmax(200px,260px)] lg:items-start lg:gap-16 xl:gap-20">
           <article className="min-w-0 max-w-3xl text-left">
             {doc.lead ? (
-              <p className="text-base leading-relaxed text-brand-textMuted">{doc.lead}</p>
+              <p className="text-base font-normal leading-relaxed text-brand-textMuted">{doc.lead}</p>
             ) : null}
 
             {doc.sections.map((section, i) => (
@@ -104,8 +103,8 @@ export function LegalDocumentView({ document: doc }: Props) {
                 id={section.id}
                 className={["scroll-mt-28", i > 0 || doc.lead ? "mt-10 sm:mt-12" : "mt-8 sm:mt-10"].join(" ")}
               >
-                <h2 className="text-lg font-semibold text-brand-text sm:text-xl">{section.title}</h2>
-                <div className="mt-3 space-y-3 text-sm leading-relaxed text-brand-textMuted sm:text-base sm:leading-[1.7]">
+                <h2 className="text-lg font-medium text-brand-text sm:text-xl">{section.title}</h2>
+                <div className="mt-3 space-y-3 text-sm font-normal leading-relaxed text-brand-textMuted sm:text-base sm:leading-[1.7]">
                   {section.paragraphs.map((p, pi) => (
                     <p key={`${section.id}-${pi}`}>{p}</p>
                   ))}

@@ -15,8 +15,13 @@ import {
   Wrench,
   type LucideIcon,
 } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FeatureRequestType, FeatureRequestView, FeatureReviewStatus } from "@/lib/featureRequests";
+import {
+  featureRequestItemStorageId,
+  loadUpvotedFeatureRequestIds,
+  persistUpvotedFeatureRequestId,
+} from "@/lib/featureRequestClientStorage";
 
 const TYPE_ICON: Record<FeatureRequestType, LucideIcon> = {
   product: Rocket,
@@ -76,6 +81,8 @@ function FeatureRequestRow({ row, onVoted, index }: RowProps) {
   const TypeIcon = TYPE_ICON[row.type];
   const iconBox = TYPE_ICON_BOX[row.type];
 
+  const itemId = featureRequestItemStorageId(row);
+
   const upvote = useCallback(async () => {
     if (row.hasUpvoted || loading) {
       return;
@@ -83,8 +90,11 @@ function FeatureRequestRow({ row, onVoted, index }: RowProps) {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch(`/api/feature-requests/${encodeURIComponent(row.strapiId)}/upvote`, {
+      const res = await fetch(`/api/feature-requests/${encodeURIComponent(itemId)}/upvote`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ priority: row.upvotes }),
       });
       const data = (await res.json()) as { ok?: boolean; upvotes?: number; error?: string };
       if (!res.ok || !data.ok) {
@@ -92,14 +102,15 @@ function FeatureRequestRow({ row, onVoted, index }: RowProps) {
         return;
       }
       if (typeof data.upvotes === "number") {
-        onVoted(row.strapiId, data.upvotes);
+        persistUpvotedFeatureRequestId(itemId);
+        onVoted(itemId, data.upvotes);
       }
     } catch {
       setError("Network error");
     } finally {
       setLoading(false);
     }
-  }, [loading, onVoted, row.hasUpvoted, row.strapiId]);
+  }, [loading, onVoted, row.hasUpvoted, row.upvotes, itemId]);
 
   const upvoted = row.hasUpvoted;
 
@@ -190,8 +201,22 @@ type FeatureRequestsBoardProps = {
 export function FeatureRequestsBoard({ initial }: FeatureRequestsBoardProps) {
   const [rows, setRows] = useState<FeatureRequestView[]>(initial);
 
-  const onVoted = useCallback((strapiId: string, upvotes: number) => {
-    setRows((prev) => prev.map((r) => (r.strapiId === strapiId ? { ...r, upvotes, hasUpvoted: true } : r)));
+  useEffect(() => {
+    const voted = loadUpvotedFeatureRequestIds();
+    setRows((prev) =>
+      prev.map((r) => {
+        const id = featureRequestItemStorageId(r);
+        return voted.has(id) ? { ...r, hasUpvoted: true } : r;
+      }),
+    );
+  }, []);
+
+  const onVoted = useCallback((itemKey: string, upvotes: number) => {
+    setRows((prev) =>
+      prev.map((r) =>
+        featureRequestItemStorageId(r) === itemKey ? { ...r, upvotes, hasUpvoted: true } : r,
+      ),
+    );
   }, []);
 
   const byStatus = useMemo(() => {
