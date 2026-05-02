@@ -15,6 +15,10 @@ const nextConfig = {
         hostname: "pilotup-website-backend.hf.space",
         pathname: "/uploads/**",
       },
+      { protocol: "https", hostname: "www.svgrepo.com", pathname: "/**" },
+      { protocol: "https", hostname: "img.freepik.com", pathname: "/**" },
+      { protocol: "https", hostname: "www.citypng.com", pathname: "/**" },
+      { protocol: "https", hostname: "upload.wikimedia.org", pathname: "/**" },
     ],
   },
 };

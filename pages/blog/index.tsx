@@ -7,25 +7,25 @@ import { motion } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { getBlogSource } from "@/lib/blogConfig";
 import { fetchAllBlogPosts } from "@/lib/strapi";
-import { BlogViewModel, calculateReadTimeFromHtml, extractTextFromHTML, formatDate, mapBlogPost } from "@/lib/blog";
+import { blogViewModelToFeedItem, type BlogFeedItem, formatDate, mapBlogPost } from "@/lib/blog";
 import { fetchSupabaseBlogPosts } from "@/lib/supabaseBlog";
 
 type Props = {
-    blogs: BlogViewModel[];
+    blogs: BlogFeedItem[];
 };
 
 export default function BlogFeedPage({ blogs }: InferGetServerSidePropsType<typeof getServerSideProps>) {
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredBlogs = useMemo(
-        () =>
-            blogs.filter(
-                (blog) =>
-                    blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    extractTextFromHTML(blog.content).toLowerCase().includes(searchQuery.toLowerCase())
-            ),
-        [blogs, searchQuery]
-    );
+    const q = searchQuery.trim().toLowerCase();
+    const filteredBlogs = useMemo(() => {
+        if (!q) {
+            return blogs;
+        }
+        return blogs.filter(
+            (blog) => blog.title.toLowerCase().includes(q) || blog.searchIndex.includes(q)
+        );
+    }, [blogs, q]);
 
     const featuredBlog = filteredBlogs[0];
     const remainingBlogs = filteredBlogs.slice(1);
@@ -103,14 +103,14 @@ export default function BlogFeedPage({ blogs }: InferGetServerSidePropsType<type
                                         </Link>
 
                                         <p className="text-gray-500 font-serif leading-relaxed mb-6 line-clamp-3 text-[1.05rem]">
-                                            {extractTextFromHTML(featuredBlog.content, 180)}
+                                            {featuredBlog.excerptFeatured}
                                         </p>
 
                                         <div className="mt-auto flex items-center justify-between border-t border-gray-200 pt-4 w-full">
                                             <div className="flex items-center gap-2 text-xs font-sans text-gray-400 font-medium">
                                                 <span>{formatDate(featuredBlog.publishedAt)}</span>
                                                 <span className="text-gray-300">|</span>
-                                                <span>{calculateReadTimeFromHtml(featuredBlog.content)} min read</span>
+                                                <span>{featuredBlog.readTimeMinutes} min read</span>
                                             </div>
                                             <Link
                                                 href={`/blog/${featuredBlog.slug}`}
@@ -159,7 +159,7 @@ export default function BlogFeedPage({ blogs }: InferGetServerSidePropsType<type
                                         </Link>
 
                                         <p className="text-gray-500 font-serif text-sm leading-relaxed line-clamp-3 mb-4 flex-grow">
-                                            {extractTextFromHTML(blog.content, 120)}
+                                            {blog.excerptCard}
                                         </p>
 
                                         <div className="flex items-center gap-4 text-xs text-gray-400 font-sans font-medium pt-4 border-t border-gray-100 mt-auto">
@@ -167,7 +167,7 @@ export default function BlogFeedPage({ blogs }: InferGetServerSidePropsType<type
                                                 <Calendar className="w-3 h-3" />
                                                 {formatDate(blog.publishedAt)}
                                             </div>
-                                            <span>{calculateReadTimeFromHtml(blog.content)} min read</span>
+                                            <span>{blog.readTimeMinutes} min read</span>
                                         </div>
                                     </div>
                                 </motion.article>
@@ -188,15 +188,17 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ res }) => 
             const posts = await fetchSupabaseBlogPosts();
             return {
                 props: {
-                    blogs: posts.map((post) => ({
-                        id: post.id,
-                        slug: post.slug,
-                        title: post.title,
-                        content: post.content || "",
-                        summary: post.summary || "",
-                        coverUrl: post.cover_url || "",
-                        publishedAt: post.updated_at || post.created_at,
-                    })),
+                    blogs: posts.map((post) =>
+                        blogViewModelToFeedItem({
+                            id: post.id,
+                            slug: post.slug,
+                            title: post.title,
+                            content: post.content || "",
+                            summary: post.summary || "",
+                            coverUrl: post.cover_url || "",
+                            publishedAt: post.updated_at || post.created_at,
+                        })
+                    ),
                 },
             };
         }
@@ -204,7 +206,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ res }) => 
         const posts = await fetchAllBlogPosts();
         return {
             props: {
-                blogs: posts.map(mapBlogPost),
+                blogs: posts.map((p) => blogViewModelToFeedItem(mapBlogPost(p))),
             },
         };
     } catch (error) {

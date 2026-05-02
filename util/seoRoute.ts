@@ -8,7 +8,11 @@ export function shouldSkipSeoLookup(path: string): boolean {
     cleanPath.startsWith("/api/") ||
     cleanPath.startsWith("/_next/") ||
     cleanPath === "/blog" ||
-    cleanPath.startsWith("/blog/")
+    cleanPath.startsWith("/blog/") ||
+    cleanPath === "/docs" ||
+    cleanPath.startsWith("/docs/") ||
+    cleanPath === "/terms" ||
+    cleanPath === "/privacy"
   );
 }
 

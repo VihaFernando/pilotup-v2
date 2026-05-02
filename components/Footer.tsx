@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Globe, Send, PlayCircle, ArrowUpRight } from "lucide-react";
+import { SHOW_DOCUMENTATION } from "@/lib/siteFlags";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -10,7 +11,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 lg:gap-8 mb-16">
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-6 cursor-pointer group w-fit">
-              <img src="/Logo-6.png" alt="PilotUP Logo" className="h-8 w-auto object-contain" />
+              <img src="/brand-assets/png/full-logo-dark.png" alt="PilotUP Logo" className="h-8 w-auto object-contain" />
             </Link>
 
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs mb-8">
@@ -67,29 +68,27 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white mb-6">Resources</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/waitlist" className="hover:text-white transition-colors">Join Waitlist</Link></li>
+              {SHOW_DOCUMENTATION ? (
+                <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+              ) : null}
+              <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
+              <li><Link href="/feature-requests" className="hover:text-white transition-colors">Feature Requests</Link></li>
               <li>
                 <a href="https://cal.com/nigeljacob/1-on-1" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
                   Talk to Founders <ArrowUpRight className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.youtube.com/watch?v=QnRtcMGw6d0" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1">
-                  Watch Demo <ArrowUpRight className="w-3 h-3 opacity-50" />
                 </a>
               </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-bold text-white mb-6">Company</h4>
+            <h4 className="font-bold text-white mb-6">Company & legal</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link href="/login" className="hover:text-white transition-colors">Login</Link></li>
-              <li><Link href="/signup" className="hover:text-white transition-colors">Sign Up</Link></li>
-              <li><a href="mailto:hello@pilotup.io" className="hover:text-white transition-colors">Contact Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+              <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">Blogs</Link></li>
+              <li><Link href="/brand-assets" className="hover:text-white transition-colors">Brand Assets</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>
@@ -98,8 +97,8 @@ export function Footer() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-gray-500 text-xs">© {currentYear} PilotUP Inc. All rights reserved.</div>
             <div className="flex items-center gap-6 text-xs text-gray-500">
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
               <a href="mailto:hello@pilotup.io" className="hover:text-white transition-colors">hello@pilotup.io</a>
             </div>
           </div>
