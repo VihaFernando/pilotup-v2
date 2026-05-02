@@ -2,6 +2,7 @@
 import { GetServerSideProps } from "next";
 import { fetchAllStrapiDocBundles } from "@/lib/docs";
 import { fetchCareerSlugsFromStrapi } from "@/lib/careersStrapi";
+import { SHOW_DOCUMENTATION } from "@/lib/siteFlags";
 import { fetchAllPages, fetchAllBlogPosts } from "@/lib/strapi";
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
@@ -9,11 +10,13 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const posts = await fetchAllBlogPosts();
 
   let docSlugs: string[] = [];
-  try {
-    const bundles = await fetchAllStrapiDocBundles();
-    docSlugs = bundles.map((b) => b.view.slug).filter(Boolean);
-  } catch {
-    // Strapi may be offline during build; omit docs from sitemap.
+  if (SHOW_DOCUMENTATION) {
+    try {
+      const bundles = await fetchAllStrapiDocBundles();
+      docSlugs = bundles.map((b) => b.view.slug).filter(Boolean);
+    } catch {
+      // Strapi may be offline during build; omit docs from sitemap.
+    }
   }
 
   let careerSlugs: string[] = [];
@@ -29,10 +32,13 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     <loc>https://pilotup.io</loc>
     <priority>1.0</priority>
   </url>
+  ${SHOW_DOCUMENTATION
+    ? `
   <url>
     <loc>https://pilotup.io/docs</loc>
     <priority>0.75</priority>
-  </url>
+  </url>`
+    : ""}
   <url>
     <loc>https://pilotup.io/careers</loc>
     <priority>0.7</priority>

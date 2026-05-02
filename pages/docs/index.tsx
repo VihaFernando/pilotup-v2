@@ -1,6 +1,7 @@
 import type { GetServerSideProps } from "next";
 import { DocsErrorState } from "@/components/docs/DocsErrorState";
 import { fetchAllStrapiDocBundles } from "@/lib/docs";
+import { SHOW_DOCUMENTATION } from "@/lib/siteFlags";
 
 type IndexProps = { kind: "empty" } | { kind: "error"; message: string };
 
@@ -18,6 +19,10 @@ export default function DocsIndexPage(props: IndexProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<IndexProps> = async ({ res }) => {
+  if (!SHOW_DOCUMENTATION) {
+    return { notFound: true };
+  }
+
   res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=600");
 
   try {

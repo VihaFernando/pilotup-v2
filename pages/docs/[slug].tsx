@@ -11,6 +11,7 @@ import {
   type DocSpotlightItem,
   plainTextExcerptFromHtml,
 } from "@/lib/docs";
+import { SHOW_DOCUMENTATION } from "@/lib/siteFlags";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 import { getDocNeighbors, withHeadingIdsAndToc, type DocTocItem } from "@/lib/docHeadings";
 import { strapiRichTextToHtml } from "@/lib/strapiRichText";
@@ -88,6 +89,10 @@ export default function DocDetailPage(props: DocPageProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ params, res }) => {
+  if (!SHOW_DOCUMENTATION) {
+    return { notFound: true };
+  }
+
   res.setHeader("Cache-Control", "public, s-maxage=60, stale-while-revalidate=600");
 
   const slug = typeof params?.slug === "string" ? params.slug : "";

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Globe, Send, PlayCircle, ArrowUpRight } from "lucide-react";
+import { SHOW_DOCUMENTATION } from "@/lib/siteFlags";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -67,7 +68,9 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white mb-6">Resources</h4>
             <ul className="space-y-3 text-sm text-gray-400">
-              <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+              {SHOW_DOCUMENTATION ? (
+                <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+              ) : null}
               <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
               <li><Link href="/feature-requests" className="hover:text-white transition-colors">Feature Requests</Link></li>
               <li>
