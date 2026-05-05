@@ -6,6 +6,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { fetchCareerBySlugFromStrapi, fetchCareerSlugsFromStrapi } from "@/lib/careersStrapi";
 import { careerEmploymentLabel, type CareerJob } from "@/lib/careers";
+import { DEFAULT_OG_IMAGE, SITE_NAME, normalizedCanonical } from "@/util/seo";
 
 type Props = {
   job: CareerJob;
@@ -48,18 +49,45 @@ function applyRel(url: string) {
 export default function CareerJobPage({ job }: Props) {
   const pageTitle = job.seoTitle || job.title;
   const pageDesc = job.seoDescription || job.excerpt;
+  const canonicalUrl = normalizedCanonical(`/careers/${job.slug}`);
+  const ogImage = job.ogImageUrl || DEFAULT_OG_IMAGE;
   const hasApply = Boolean(job.applyUrl);
   const employment = careerEmploymentLabel(job);
+  const jobSchema = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: pageTitle,
+    description: pageDesc,
+    datePosted: job.postedAt,
+    employmentType: employment,
+    hiringOrganization: {
+      "@type": "Organization",
+      name: SITE_NAME,
+    },
+    url: canonicalUrl,
+  };
 
   return (
     <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-brand-surface-alt">
       <Head>
         <title>{`${pageTitle} | Careers | PilotUP`}</title>
         <meta name="description" content={pageDesc} />
-        {job.ogTitle ? <meta property="og:title" content={job.ogTitle} /> : null}
-        {job.ogDescription ? <meta property="og:description" content={job.ogDescription} /> : null}
-        {job.ogImageUrl ? <meta property="og:image" content={job.ogImageUrl} /> : null}
-        <link rel="canonical" href={`/careers/${job.slug}`} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta property="og:type" content="article" />
+        <meta property="og:site_name" content={SITE_NAME} />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={job.ogTitle || `${pageTitle} | Careers | PilotUP`} />
+        <meta property="og:description" content={job.ogDescription || pageDesc} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:alt" content={pageTitle} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pilotup" />
+        <meta name="twitter:title" content={job.ogTitle || `${pageTitle} | Careers | PilotUP`} />
+        <meta name="twitter:description" content={job.ogDescription || pageDesc} />
+        <meta name="twitter:image" content={ogImage} />
+        <link rel="canonical" href={canonicalUrl} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }} />
       </Head>
 
       <Navigation />

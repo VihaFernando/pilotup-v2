@@ -13,6 +13,7 @@ import { fetchBlogPostBySlug } from "@/lib/strapi";
 import { BlogViewModel, calculateReadTimeFromHtml, extractTextFromHTML, formatDate, mapBlogPost, resolveStrapiAsset } from "@/lib/blog";
 import { fetchSupabaseBlogPostBySlug } from "@/lib/supabaseBlog";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL, normalizedCanonical } from "@/util/seo";
 
 type Props = {
     blog: BlogViewModel | null;
@@ -161,7 +162,37 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
     const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
     const readTime = calculateReadTimeFromHtml(safeContent);
-    const metaDescription = blog.summary || extractTextFromHTML(safeContent, 200);
+    const metaTitle = blog.seo.metaTitle || blog.title;
+    const metaDescription = blog.seo.metaDescription || blog.summary || extractTextFromHTML(safeContent, 200);
+    const canonicalUrl = normalizedCanonical(blog.seo.canonicalURL || `/blog/${blog.slug}`);
+    const ogTitle = blog.seo.openGraph.ogTitle || metaTitle;
+    const ogDescription = blog.seo.openGraph.ogDescription || metaDescription;
+    const ogType = blog.seo.openGraph.ogType || "article";
+    const ogUrl = normalizedCanonical(blog.seo.openGraph.ogUrl || canonicalUrl);
+    const ogImage = blog.seo.openGraph.ogImage || blog.seo.metaImage || blog.coverUrl || DEFAULT_OG_IMAGE;
+    const robots = blog.seo.metaRobots || "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+    const keywords = blog.seo.keywords || "";
+    const structuredData = blog.seo.structuredData;
+    const metaViewport = blog.seo.metaViewport || "";
+    const blogPostingSchema = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: ogTitle,
+        description: metaDescription,
+        image: [ogImage],
+        datePublished: blog.publishedAt,
+        dateModified: blog.publishedAt,
+        mainEntityOfPage: canonicalUrl,
+        author: { "@type": "Person", name: blog.author || SITE_NAME },
+        publisher: {
+            "@type": "Organization",
+            name: SITE_NAME,
+            logo: {
+                "@type": "ImageObject",
+                url: `${SITE_URL}/logo.png`,
+            },
+        },
+    };
 
     const parseOptions: HTMLReactParserOptions = {
         replace: (domNode) => {
@@ -246,9 +277,32 @@ export default function BlogDetailPage({ blog, debug }: InferGetServerSidePropsT
     return (
         <div className="bg-[#F9F9FB] min-h-screen selection:bg-[#E21339] selection:text-white pb-32">
             <Head>
-                <title>{blog.title}</title>
+                <title>{metaTitle}</title>
                 <meta name="description" content={metaDescription} />
-                <link rel="canonical" href={`/blog/${blog.slug}`} />
+                <meta name="robots" content={robots} />
+                {keywords ? <meta name="keywords" content={keywords} /> : null}
+                {metaViewport ? <meta name="viewport" content={metaViewport} /> : null}
+                <link rel="canonical" href={canonicalUrl} />
+                <meta property="og:type" content={ogType} />
+                <meta property="og:site_name" content={SITE_NAME} />
+                <meta property="og:locale" content="en_US" />
+                <meta property="og:title" content={ogTitle} />
+                <meta property="og:description" content={ogDescription} />
+                <meta property="og:url" content={ogUrl} />
+                <meta property="og:image" content={ogImage} />
+                <meta property="og:image:alt" content={ogTitle} />
+                <meta property="article:published_time" content={blog.publishedAt} />
+                <meta property="article:modified_time" content={blog.publishedAt} />
+                <meta property="article:author" content={blog.author || SITE_NAME} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:site" content="@pilotup" />
+                <meta name="twitter:title" content={ogTitle} />
+                <meta name="twitter:description" content={ogDescription} />
+                <meta name="twitter:image" content={ogImage} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingSchema) }} />
+                {structuredData ? (
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+                ) : null}
             </Head>
 
             <style dangerouslySetInnerHTML={{ __html: MERRIWEATHER_FONT_IMPORT }} />
@@ -380,6 +434,10 @@ export const getServerSideProps: GetServerSideProps<Props & { debug?: string }> 
                         summary: post.summary || "",
                         coverUrl: post.cover_url || "",
                         publishedAt: post.updated_at || post.created_at || "",
+                        author: "PilotUP",
+                        seo: {
+                            openGraph: {},
+                        },
                     },
                     debug: `Supabase: Loaded post for slug '${slug}'`,
                 },

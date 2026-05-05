@@ -8,6 +8,7 @@ import { Footer } from "@/components/Footer";
 import { ChangelogTimeline } from "@/components/ChangelogTimeline";
 import type { ChangelogEntry } from "@/lib/changelog";
 import { fetchChangelogEntries } from "@/lib/changelogStrapi";
+import { DEFAULT_OG_IMAGE, SITE_NAME, normalizedCanonical } from "@/util/seo";
 
 type ChangelogPageProps = {
   entries: ChangelogEntry[];
@@ -15,15 +16,38 @@ type ChangelogPageProps = {
 
 export default function ChangelogPage({ entries }: ChangelogPageProps) {
   const isEmpty = entries.length === 0;
+  const canonicalUrl = normalizedCanonical("/changelog");
+  const metaTitle = "Changelog | PilotUP";
+  const metaDescription = "Product updates and release notes from PilotUP, listed newest first.";
+  const webPageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: metaTitle,
+    description: metaDescription,
+    url: canonicalUrl,
+  };
 
   return (
     <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-brand-surface-alt">
       <Head>
-        <title>Changelog | PilotUP</title>
-        <meta
-          name="description"
-          content="Product updates and release notes from PilotUP, listed newest first."
-        />
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={SITE_NAME} />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={DEFAULT_OG_IMAGE} />
+        <meta property="og:image:alt" content={metaTitle} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pilotup" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={DEFAULT_OG_IMAGE} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }} />
       </Head>
       <Navigation />
 

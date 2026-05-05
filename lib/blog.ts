@@ -10,6 +10,25 @@ export type BlogViewModel = {
     summary: string;
     coverUrl: string;
     publishedAt: string;
+    author: string;
+    readTime: number | null;
+    seo: {
+        metaTitle: string | null;
+        metaDescription: string | null;
+        keywords: string | null;
+        metaRobots: string | null;
+        canonicalURL: string | null;
+        metaViewport: string | null;
+        structuredData: unknown | null;
+        metaImage: string | null;
+        openGraph: {
+            ogTitle: string | null;
+            ogDescription: string | null;
+            ogUrl: string | null;
+            ogType: string | null;
+            ogImage: string | null;
+        };
+    };
 };
 
 /** List / feed cards only — no full `content` (keeps `__NEXT_DATA__` small). */
@@ -95,6 +114,46 @@ function normalizeContent(content: unknown): string {
     return "";
 }
 
+function asStringOrNull(value: unknown): string | null {
+    if (typeof value !== "string") return null;
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+}
+
+function normalizeKeywords(value: unknown): string | null {
+    if (Array.isArray(value)) {
+        const cleaned = value
+            .map((item) => asStringOrNull(item))
+            .filter((item): item is string => Boolean(item));
+        return cleaned.length ? cleaned.join(", ") : null;
+    }
+
+    const raw = asStringOrNull(value);
+    if (!raw) return null;
+
+    // Strapi can store keywords as a JSON array string: ["AI","LLM"]
+    if (raw.startsWith("[") && raw.endsWith("]")) {
+        try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                const cleaned = parsed
+                    .map((item) => asStringOrNull(item))
+                    .filter((item): item is string => Boolean(item));
+                return cleaned.length ? cleaned.join(", ") : null;
+            }
+        } catch {
+            // Fall through and treat as plain text input.
+        }
+    }
+
+    // Support comma/newline-separated manual input.
+    const cleaned = raw
+        .split(/[\n,]/)
+        .map((item) => item.trim())
+        .filter(Boolean);
+    return cleaned.length ? cleaned.join(", ") : null;
+}
+
 export function resolveStrapiAsset(url?: string | null): string {
     if (!url) return "";
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
@@ -105,14 +164,36 @@ export function mapBlogPost(post: BlogPost): BlogViewModel {
     const attrs = getAttrs(post);
     const content = normalizeContent(attrs.content);
     const coverUrl = firstMediaUrl(attrs.ogImage) || firstMediaUrl(attrs.featuredImage);
+    const seo = attrs.seo && typeof attrs.seo === "object" ? attrs.seo : {};
+    const openGraph = seo.openGraph && typeof seo.openGraph === "object" ? seo.openGraph : {};
+
     return {
         id: post.id,
         slug: attrs.slug,
         title: attrs.title,
         content,
-        summary: attrs.excerpt || "",
+        summary: attrs.metaDescription || attrs.excerpt || "",
         coverUrl,
         publishedAt: attrs.publishedAt || attrs.createdAt || new Date().toISOString(),
+        author: attrs.author || "PilotUP",
+        readTime: typeof attrs.readTime === "number" ? attrs.readTime : null,
+        seo: {
+            metaTitle: asStringOrNull(seo.metaTitle),
+            metaDescription: asStringOrNull(seo.metaDescription),
+            keywords: normalizeKeywords(seo.keywords),
+            metaRobots: asStringOrNull(seo.metaRobots),
+            canonicalURL: asStringOrNull(seo.canonicalURL),
+            metaViewport: asStringOrNull(seo.metaViewport),
+            structuredData: seo.structuredData ?? null,
+            metaImage: asStringOrNull(firstMediaUrl(seo.metaImage)),
+            openGraph: {
+                ogTitle: asStringOrNull(openGraph.ogTitle),
+                ogDescription: asStringOrNull(openGraph.ogDescription),
+                ogUrl: asStringOrNull(openGraph.ogUrl),
+                ogType: asStringOrNull(openGraph.ogType),
+                ogImage: asStringOrNull(firstMediaUrl(openGraph.ogImage)),
+            },
+        },
     };
 }
 
