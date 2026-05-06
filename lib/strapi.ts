@@ -113,6 +113,7 @@ function normalizePage(raw: any): Page {
       ogDescription: raw.ogDescription ?? null,
       canonicalUrl: raw.canonicalUrl ?? null,
       seoKeywords: raw.seoKeywords ?? [],
+      seo: raw.seo ?? null,
       publishedAt: raw.publishedAt,
     },
   };
@@ -129,7 +130,13 @@ function normalizeBlogPost(raw: any): BlogPost {
       content: raw.content ?? null,
       ogImage: raw.ogImage,
       featuredImage: raw.featuredImage,
+      author: raw.author ?? null,
+      metaDescription: raw.metaDescription ?? null,
+      category: raw.category ?? null,
+      readTime: raw.readTime ?? null,
+      seo: raw.seo ?? undefined,
       publishedAt: raw.publishedAt,
+      createdAt: raw.createdAt,
     },
   };
 }

@@ -15,6 +15,7 @@ import { SHOW_DOCUMENTATION } from "@/lib/siteFlags";
 import { sanitizeBlogHtml } from "@/lib/sanitizeBlogHtml";
 import { getDocNeighbors, withHeadingIdsAndToc, type DocTocItem } from "@/lib/docHeadings";
 import { strapiRichTextToHtml } from "@/lib/strapiRichText";
+import { SITE_NAME, SITE_URL } from "@/util/seo";
 
 type Seo = {
   title: string;
@@ -55,23 +56,45 @@ export default function DocDetailPage(props: DocPageProps) {
   }
 
   const { seo } = props;
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: seo.ogTitle,
+    description: seo.ogDescription,
+    image: [seo.ogImage],
+    mainEntityOfPage: seo.canonicalUrl,
+    author: { "@type": "Organization", name: SITE_NAME },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.png`,
+      },
+    },
+  };
 
   return (
     <>
       <Head>
         <title>{seo.title}</title>
         <meta name="description" content={seo.description} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         {seo.keywords ? <meta name="keywords" content={seo.keywords} /> : null}
         <link rel="canonical" href={seo.canonicalUrl} />
         <meta property="og:type" content="article" />
+        <meta property="og:site_name" content={SITE_NAME} />
+        <meta property="og:locale" content="en_US" />
         <meta property="og:title" content={seo.ogTitle} />
         <meta property="og:description" content={seo.ogDescription} />
         <meta property="og:image" content={seo.ogImage} />
         <meta property="og:url" content={seo.canonicalUrl} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pilotup" />
         <meta name="twitter:title" content={seo.ogTitle} />
         <meta name="twitter:description" content={seo.ogDescription} />
         <meta name="twitter:image" content={seo.ogImage} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       </Head>
       <DocsPageShell
         categories={props.categories}

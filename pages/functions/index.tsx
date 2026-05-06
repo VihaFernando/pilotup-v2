@@ -42,7 +42,6 @@ export default function FunctionsPage() {
                 <section className="max-w-4xl mx-auto mt-12 flex flex-wrap justify-center gap-4 text-sm font-semibold">
                     <Link href="/roles" className="text-brand-text hover:text-brand-primaryAccent transition">Explore roles</Link>
                     <Link href="/features" className="text-brand-text hover:text-brand-primaryAccent transition">View features</Link>
-                    <Link href="/integrations" className="text-brand-text hover:text-brand-primaryAccent transition">See integrations</Link>
                 </section>
             </main>
             <WaitlistCTA heading="Build by function" subtitle="Start with one function and scale across your entire business." />

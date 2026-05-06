@@ -6,6 +6,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { fetchCareerSummariesFromStrapi } from "@/lib/careersStrapi";
 import { careerEmploymentLabel, type CareerJobListItem } from "@/lib/careers";
+import { DEFAULT_OG_IMAGE, SITE_NAME, normalizedCanonical } from "@/util/seo";
 
 type Props = {
   jobs: CareerJobListItem[];
@@ -24,15 +25,38 @@ function formatPosted(iso: string) {
 }
 
 export default function CareersPage({ jobs }: Props) {
+  const canonicalUrl = normalizedCanonical("/careers");
+  const metaTitle = "Careers | PilotUP";
+  const metaDescription = "Join PilotUP. We're building AI employees for every team-view open roles and apply.";
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: metaTitle,
+    description: metaDescription,
+    url: canonicalUrl,
+  };
+
   return (
     <div className="min-h-screen w-full min-w-0 overflow-x-clip bg-brand-surface-alt">
       <Head>
-        <title>Careers | PilotUP</title>
-        <meta
-          name="description"
-          content="Join PilotUP. We're building AI employees for every team—view open roles and apply."
-        />
-        <link rel="canonical" href="/careers" />
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={SITE_NAME} />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={DEFAULT_OG_IMAGE} />
+        <meta property="og:image:alt" content={metaTitle} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@pilotup" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={DEFAULT_OG_IMAGE} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
       </Head>
 
       <Navigation />

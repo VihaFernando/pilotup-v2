@@ -9,6 +9,7 @@ import { getBlogSource } from "@/lib/blogConfig";
 import { fetchAllBlogPosts } from "@/lib/strapi";
 import { blogViewModelToFeedItem, type BlogFeedItem, formatDate, mapBlogPost } from "@/lib/blog";
 import { fetchSupabaseBlogPosts } from "@/lib/supabaseBlog";
+import { DEFAULT_OG_IMAGE, SITE_NAME, normalizedCanonical } from "@/util/seo";
 
 type Props = {
     blogs: BlogFeedItem[];
@@ -29,16 +30,38 @@ export default function BlogFeedPage({ blogs }: InferGetServerSidePropsType<type
 
     const featuredBlog = filteredBlogs[0];
     const remainingBlogs = filteredBlogs.slice(1);
+    const canonicalUrl = normalizedCanonical("/blog");
+    const metaTitle = "Blog Articles | PilotUP";
+    const metaDescription = "Explore PilotUP blog for insights on AI employees, workflow automation, building AI workforce, and scaling your business with AI.";
+    const collectionSchema = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: metaTitle,
+        description: metaDescription,
+        url: canonicalUrl,
+    };
 
     return (
         <div className="min-h-screen bg-[#fff] text-[#111]">
             <Head>
-                <title>Blog Articles</title>
-                <meta
-                    name="description"
-                    content="Explore PilotUP blog for insights on AI employees, workflow automation, building AI workforce, and scaling your business with AI."
-                />
-                <link rel="canonical" href="/blog" />
+                <title>{metaTitle}</title>
+                <meta name="description" content={metaDescription} />
+                <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+                <link rel="canonical" href={canonicalUrl} />
+                <meta property="og:type" content="website" />
+                <meta property="og:site_name" content={SITE_NAME} />
+                <meta property="og:locale" content="en_US" />
+                <meta property="og:title" content={metaTitle} />
+                <meta property="og:description" content={metaDescription} />
+                <meta property="og:url" content={canonicalUrl} />
+                <meta property="og:image" content={featuredBlog?.coverUrl || DEFAULT_OG_IMAGE} />
+                <meta property="og:image:alt" content={metaTitle} />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:site" content="@pilotup" />
+                <meta name="twitter:title" content={metaTitle} />
+                <meta name="twitter:description" content={metaDescription} />
+                <meta name="twitter:image" content={featuredBlog?.coverUrl || DEFAULT_OG_IMAGE} />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
             </Head>
 
             <Navigation />
@@ -197,6 +220,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ res }) => 
                             summary: post.summary || "",
                             coverUrl: post.cover_url || "",
                             publishedAt: post.updated_at || post.created_at,
+                            author: "PilotUP",
+                            seo: {
+                                openGraph: {},
+                            },
                         })
                     ),
                 },
