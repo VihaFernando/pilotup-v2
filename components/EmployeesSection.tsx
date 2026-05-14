@@ -117,10 +117,10 @@ export function EmployeesSection() {
 
       <div
         ref={revealTriggerRef}
-        className="mt-16 flex h-fit w-full border-l-0 border-brand-border sm:mt-20 lg:mt-24 lg:flex lg:overflow-visible lg:border-l-2"
+        className="mt-16 flex h-fit w-full flex-col border-l-0 border-brand-border sm:mt-20 lg:mt-24 lg:flex-row lg:overflow-visible lg:border-l-2"
       >
         <div
-          className="relative z-30 px-4 pb-4 pt-2 sm:px-5 lg:hidden"
+          className="relative z-30 w-full px-4 pb-4 pt-2 sm:px-5 lg:hidden"
           role="tablist"
           aria-label="Employee types mobile"
         >
@@ -209,7 +209,7 @@ export function EmployeesSection() {
           role="tabpanel"
           aria-labelledby={`tab-${selected}`}
           className={[
-            "relative z-10 mt-2 flex h-full min-h-[340px] flex-1 items-end justify-center overflow-hidden py-4 sm:py-6 lg:ml-8 lg:mt-0 lg:overflow-visible xl:ml-12",
+            "relative z-10 mt-2 flex h-full min-h-[340px] w-full flex-1 items-end justify-center overflow-hidden py-4 sm:py-6 lg:ml-8 lg:mt-0 lg:overflow-visible xl:ml-12",
             "lg:transform-gpu lg:transition-all lg:duration-700 lg:delay-100 lg:ease-out",
             desktopReveal ? "scale-100 opacity-100" : "scale-105 opacity-75",
           ].join(" ")}
