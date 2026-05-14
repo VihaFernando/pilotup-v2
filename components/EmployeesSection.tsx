@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -72,6 +71,19 @@ export function EmployeesSection() {
     if (!el) {
       return;
     }
+
+    // Mobile browsers can defer IntersectionObserver callbacks aggressively.
+    // Load media immediately on mobile so the panel doesn't stay blank.
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+      setLoadVideo(true);
+      return;
+    }
+
+    if (typeof IntersectionObserver === "undefined") {
+      setLoadVideo(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -225,31 +237,32 @@ export function EmployeesSection() {
                       loop
                       muted
                       playsInline
-                      preload="metadata"
+                      preload="auto"
                       className="pointer-events-none absolute inset-0 z-0 h-full w-full object-contain object-center"
                     >
                       <source src={selectedRole.video} type="video/mp4" />
                     </video>
                   ) : (
                     <div className="absolute inset-0 z-0">
-                      <Image
+                      <img
                         src={selectedRole.poster}
                         alt=""
-                        fill
+                        loading="eager"
+                        decoding="async"
                         className="object-contain object-center"
-                        sizes="(max-width: 768px) 100vw, 480px"
+                        style={{ width: "100%", height: "100%" }}
                       />
                     </div>
                   )}
 
                   <div className="pointer-events-none absolute inset-0 z-[1] h-full w-full -translate-y-24 sm:-translate-y-24 sm:scale-[1.35] md:-translate-y-36 md:scale-[1.55]">
-                    <Image
+                    <img
                       src={selectedRole.image}
                       alt=""
-                      fill
                       loading="eager"
+                      decoding="async"
                       className="object-contain object-center"
-                      sizes="(max-width: 768px) 100vw, 480px"
+                      style={{ width: "100%", height: "100%" }}
                     />
                   </div>
                 </motion.div>
