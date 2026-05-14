@@ -141,6 +141,7 @@ function HeroSection() {
               height={item.height}
               alt={item.alt}
               className="h-4 w-4 object-contain"
+              loading="eager"
             />
           </div>
         ))}

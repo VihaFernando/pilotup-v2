@@ -32,8 +32,8 @@ function escapeHtml(value: string): string {
 
 function decodeHtmlEntities(value: string): string {
     return value
-    .replace(/&nbsp;/gi, " ")
-    .replace(/&#160;/g, " ")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&#160;/g, " ")
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
         .replace(/&amp;/g, "&")
@@ -435,8 +435,23 @@ export const getServerSideProps: GetServerSideProps<Props & { debug?: string }> 
                         coverUrl: post.cover_url || "",
                         publishedAt: post.updated_at || post.created_at || "",
                         author: "PilotUP",
+                        readTime: typeof post.content === "string" ? calculateReadTimeFromHtml(post.content) : null,
                         seo: {
-                            openGraph: {},
+                            metaTitle: null,
+                            metaDescription: null,
+                            keywords: null,
+                            metaRobots: null,
+                            canonicalURL: null,
+                            metaViewport: null,
+                            structuredData: null,
+                            metaImage: null,
+                            openGraph: {
+                                ogTitle: null,
+                                ogDescription: null,
+                                ogUrl: null,
+                                ogType: null,
+                                ogImage: null,
+                            },
                         },
                     },
                     debug: `Supabase: Loaded post for slug '${slug}'`,

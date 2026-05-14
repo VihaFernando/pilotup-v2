@@ -220,15 +220,16 @@ export function EmployeesSection() {
                   {loadVideo ? (
                     <video
                       key={selectedRole.video}
-                      src={selectedRole.video}
                       poster={selectedRole.poster}
                       autoPlay
                       loop
                       muted
                       playsInline
-                      preload="none"
+                      preload="metadata"
                       className="pointer-events-none absolute inset-0 z-0 h-full w-full object-contain object-center"
-                    />
+                    >
+                      <source src={selectedRole.video} type="video/mp4" />
+                    </video>
                   ) : (
                     <div className="absolute inset-0 z-0">
                       <Image
@@ -246,6 +247,7 @@ export function EmployeesSection() {
                       src={selectedRole.image}
                       alt=""
                       fill
+                      loading="eager"
                       className="object-contain object-center"
                       sizes="(max-width: 768px) 100vw, 480px"
                     />

@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { Navigation } from "@/components/Navigation";
 import { getBlogSource } from "@/lib/blogConfig";
 import { fetchAllBlogPosts } from "@/lib/strapi";
-import { blogViewModelToFeedItem, type BlogFeedItem, formatDate, mapBlogPost } from "@/lib/blog";
+import { blogViewModelToFeedItem, type BlogFeedItem, formatDate, mapBlogPost, calculateReadTimeFromHtml } from "@/lib/blog";
 import { fetchSupabaseBlogPosts } from "@/lib/supabaseBlog";
 import { DEFAULT_OG_IMAGE, SITE_NAME, normalizedCanonical } from "@/util/seo";
 
@@ -219,12 +219,27 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ res }) => 
                             content: post.content || "",
                             summary: post.summary || "",
                             coverUrl: post.cover_url || "",
-                            publishedAt: post.updated_at || post.created_at,
+                            publishedAt: post.updated_at || post.created_at || new Date().toISOString(),
                             author: "PilotUP",
+                            readTime: typeof post.content === "string" ? calculateReadTimeFromHtml(post.content) : null,
                             seo: {
-                                openGraph: {},
+                                metaTitle: null,
+                                metaDescription: null,
+                                keywords: null,
+                                metaRobots: null,
+                                canonicalURL: null,
+                                metaViewport: null,
+                                structuredData: null,
+                                metaImage: null,
+                                openGraph: {
+                                    ogTitle: null,
+                                    ogDescription: null,
+                                    ogUrl: null,
+                                    ogType: null,
+                                    ogImage: null,
+                                },
                             },
-                        })
+                        } as any)
                     ),
                 },
             };
