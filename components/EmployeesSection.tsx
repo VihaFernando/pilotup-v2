@@ -220,17 +220,15 @@ export function EmployeesSection() {
                   {loadVideo ? (
                     <video
                       key={selectedRole.video}
+                      src={selectedRole.video}
+                      poster={selectedRole.poster}
                       autoPlay
                       loop
                       muted
                       playsInline
-                      preload="metadata"
-                      poster={selectedRole.poster}
+                      preload="none"
                       className="pointer-events-none absolute inset-0 z-0 h-full w-full object-contain object-center"
-                    >
-                      <source src={selectedRole.video} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
+                    />
                   ) : (
                     <div className="absolute inset-0 z-0">
                       <Image
